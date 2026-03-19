@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "pyemoji"
+version = "0.1.0"
+requires-python = ">=3.12"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pydantic",
+    "mypy",
+    "flake8",
+    "black"
+]
+
+[tool.pytest.ini_options]
+# Add your pytest configuration here
+
+[tool.mypy]
+# Add your mypy configuration here
+
+[tool.flake8]
+# Add your flake8 configuration here
+
+[tool.black]
+# Add your black configuration here
