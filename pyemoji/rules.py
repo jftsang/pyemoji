@@ -25,6 +25,9 @@ class State(Model):
     name: str
     actions: list[AnyAction] = Field(default_factory=list)
 
+    def __hash__(self):
+        return hash(self.id)
+
 
 class Rules(Model):
     meta: dict[str, Any] = None  # metarules, TODO
@@ -40,3 +43,7 @@ class Rules(Model):
 
     def sid2char(self, sid: int) -> str:
         return self.statemap[sid].icon
+
+    @property
+    def default_state(self) -> State:
+        return self.states[0]

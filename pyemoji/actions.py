@@ -1,13 +1,16 @@
 import operator
 from functools import reduce
-from typing import Annotated, Literal, Protocol, runtime_checkable
+from typing import Annotated, Literal, Protocol, TYPE_CHECKING, runtime_checkable
 
 from pydantic import BaseModel, Field
 
+if TYPE_CHECKING:
+    from simulator import Agent
+
 
 @runtime_checkable
-class ActionProtocol(Protocol):
-    def step(self) -> None: ...
+class Action(Protocol):
+    def step(self, agent: "Agent") -> None: ...
 
 
 class IfNeighborAction(BaseModel):
@@ -16,6 +19,8 @@ class IfNeighborAction(BaseModel):
     num: int
     stateID: int
     actions: list["AnyAction"] = Field(default_factory=list)
+
+    def step(self, agent: "Agent"): ...
 
 
 class IfRandomAction(BaseModel):
@@ -27,6 +32,9 @@ class IfRandomAction(BaseModel):
 class GoToStateAction(BaseModel):
     type: Literal["go_to_state"]
     stateID: int
+
+    def step(self, agent: "Agent"):
+        agent.next_sid = self.stateID
 
 
 action_classes = [IfNeighborAction, IfRandomAction, GoToStateAction]
