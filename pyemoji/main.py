@@ -18,10 +18,16 @@ def main(argv: str | None = None) -> None:
 
     d = json.loads(args.rules.read_text())
     rules = Rules.from_dict(d)
-    print(rules)
 
     simulator = Simulator(rules)
-    ...
+
+    results = simulator.run()
+    for t, s, p in results:
+        if t > 10:
+            break
+        print(t, p)
+
+    print(simulator)
 
 
 if __name__ == "__main__":

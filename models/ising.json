@@ -88,8 +88,8 @@
             }
         ],
         "size": {
-            "height": 16,
-            "width": 16
+            "height": 5,
+            "width": 7
         },
         "update": "simultaneous"
     }
