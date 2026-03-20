@@ -3,44 +3,10 @@ from collections import Counter
 from typing import Iterable
 
 import numpy as np
-from streamerate import stream
+from streamerate import stream  # type: ignore
 
+from agent import Agent
 from rules import Rules, State
-
-
-class Agent:
-    def __init__(self, x, y, rules: Rules):
-        self.x: int = x
-        self.y: int = y
-        self.state: State = rules.default_state
-
-        self.rules: Rules = rules
-
-        self.updated: bool = False
-        self.next_state: State = rules.default_state
-
-    def mark_as_not_updated(self):
-        self.updated = False
-
-    def calculate_next_state(self):
-        if self.updated:
-            return
-        self.next_state = self.state
-
-    def go_to_next_state(self):
-        self.state = self.next_state
-
-    def force_state(self, new_state: State):
-        self.state = self.next_state = new_state
-        self.updated = True
-
-    def perform_actions(self):
-        actions = self.state.actions
-        initial_next_state = self.next_state
-        for action in actions:
-            action.step(self)
-            if self.next_state != initial_next_state:
-                return
 
 
 class Simulator:
@@ -62,9 +28,13 @@ class Simulator:
         return self.rules.world.size["height"]
 
     def populations(self) -> dict[str, int]:
-        return Counter(
+        state_names = [state.name for state in self.rules.states]
+        p = {n: 0 for n in state_names}
+        count = Counter(
             stream(self.get_all_agents()).map(lambda agent: agent.state.name).to_list()
         )
+        p.update(count)
+        return p
 
     def __str__(self):
         return repr(self)
@@ -134,22 +104,22 @@ class Simulator:
             probs[sid] = p
         for i in range(self.height):
             for j in range(self.width):
-                agent = Agent(i, j, rules=self.rules)
+                agent = Agent(i, j, simulator=self)
 
-                state: State = random.choices(self.rules.states, weights=probs)[0]
+                state: State = random.choices(self.rules.states, weights=probs)[0]  # type: ignore
 
                 agent.force_state(state)
                 self.grid[i, j] = agent
 
-        print(self.rules)
-        print(self)
-        print(self.populations())
-
     def step(self):
         self.time += 1
-        for agent in self.get_all_agents():
-            neighbors = self.get_neighbors(agent)
-            ...
+        agents = self.get_all_agents()
+        random.shuffle(agents)
+        for agent in agents:
+            agent.mark_as_not_updated()
+            agent.calculate_next_state()
+            agent.go_to_next_state()
+        ...
 
     def run(self) -> Iterable[tuple[int, np.ndarray, dict[str, int]]]:
         self.setup_ics()

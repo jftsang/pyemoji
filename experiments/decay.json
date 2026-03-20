@@ -1,0 +1,59 @@
+{
+  "states": [
+    {
+      "icon": "⚫️",
+      "id": 0,
+      "name": "down",
+      "description": "",
+      "actions": []
+    },
+    {
+      "id": 1,
+      "icon": "🔴",
+      "name": "up",
+      "description": "",
+      "actions": [
+        {
+          "type": "if_neighbor",
+          "sign": ">=",
+          "num": 4,
+          "stateID": 0,
+          "actions": [
+            {
+              "type": "go_to_state",
+              "stateID": 0
+            }
+          ]
+        },
+        {
+          "type": "if_random",
+          "probability": 0.005,
+          "actions": [
+            {
+              "type": "go_to_state",
+              "stateID": 0
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "world": {
+    "neighborhood": "moore",
+    "proportions": [
+      {
+        "stateID": 0,
+        "parts": 0
+      },
+      {
+        "stateID": 1,
+        "parts": 100
+      }
+    ],
+    "size": {
+      "height": 32,
+      "width": 32
+    },
+    "update": "simultaneous"
+  }
+}

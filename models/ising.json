@@ -1,96 +1,99 @@
 {
-    "meta": {
-        "description": "",
-        "draw": 2,
-        "fps": 30
-    },
-    "states": [
+  "meta": {
+    "description": "",
+    "draw": 2,
+    "fps": 30
+  },
+  "states": [
+    {
+      "icon": "⚫️",
+      "id": 0,
+      "name": "down",
+      "description": "",
+      "actions": [
         {
-            "actions": [],
-            "icon": "⚫️",
-            "id": 0,
-            "name": "down",
-            "description": "",
-            "actions": [
-                {
-                    "type": "if_neighbor",
-                    "sign": ">=",
-                    "num": 5,
-                    "stateID": 1,
-                    "actions": [
-                        {
-                            "type": "if_random",
-                            "probability": 0.05,
-                            "actions": [
-                                {
-                                    "type": "go_to_state",
-                                    "stateID": 1
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    "type": "if_random",
-                    "probability": 0.0001,
-                    "actions": [{
-                        "type": "go_to_state",
-                        "stateID": 1
-                    }]
-                }
-            ]
-        },
-        {
-            "id": 1,
-            "icon": "🔴",
-            "name": "up",
-            "description": "",
-            "actions": [
-                {
-                    "type": "if_neighbor",
-                    "sign": ">=",
-                    "num": 5,
-                    "stateID": 0,
-                    "actions": [
-                        {
-                            "type": "if_random",
-                            "probability": 0.05,
-                            "actions": [
-                                {
-                                    "type": "go_to_state",
-                                    "stateID": 0
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    "type": "if_random",
-                    "probability": 0.0001,
-                    "actions": [{
-                        "type": "go_to_state",
-                        "stateID": 0
-                    }]
-                }
-            ]
-        }
-    ],
-    "world": {
-        "neighborhood": "moore",
-        "proportions": [
+          "type": "if_neighbor",
+          "sign": ">=",
+          "num": 5,
+          "stateID": 1,
+          "actions": [
             {
-                "stateID": 0,
-                "parts": 50
-            },
-            {
-                "stateID": 1,
-                "parts": 50
+              "type": "if_random",
+              "probability": 0.05,
+              "actions": [
+                {
+                  "type": "go_to_state",
+                  "stateID": 1
+                }
+              ]
             }
-        ],
-        "size": {
-            "height": 5,
-            "width": 7
+          ]
         },
-        "update": "simultaneous"
+        {
+          "type": "if_random",
+          "probability": 0.0001,
+          "actions": [
+            {
+              "type": "go_to_state",
+              "stateID": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 1,
+      "icon": "🔴",
+      "name": "up",
+      "description": "",
+      "actions": [
+        {
+          "type": "if_neighbor",
+          "sign": ">=",
+          "num": 5,
+          "stateID": 0,
+          "actions": [
+            {
+              "type": "if_random",
+              "probability": 0.05,
+              "actions": [
+                {
+                  "type": "go_to_state",
+                  "stateID": 0
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "if_random",
+          "probability": 0.0001,
+          "actions": [
+            {
+              "type": "go_to_state",
+              "stateID": 0
+            }
+          ]
+        }
+      ]
     }
+  ],
+  "world": {
+    "neighborhood": "moore",
+    "proportions": [
+      {
+        "stateID": 0,
+        "parts": 50
+      },
+      {
+        "stateID": 1,
+        "parts": 50
+      }
+    ],
+    "size": {
+      "height": 5,
+      "width": 7
+    },
+    "update": "simultaneous"
+  }
 }
