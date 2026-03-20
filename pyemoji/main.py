@@ -5,22 +5,22 @@ from pathlib import Path
 import pandas as pd
 from tqdm.auto import tqdm
 
-from rules import Rules
+from model import Model
 from simulator import Simulator
 
 
 def main(argv: str | None = None) -> None:
     parser = ArgumentParser()
     parser.add_argument(
-        "rules",
+        "model",
         type=Path,
-        help="path to the rules configuration",
+        help="path to the model configuration",
         default="models/ising.json",
     )
     args = parser.parse_args(argv)
 
     d = json.loads(args.rules.read_text())
-    rules = Rules.from_dict(d)
+    rules = Model.model_validate(d)
 
     simulator = Simulator(rules)
 

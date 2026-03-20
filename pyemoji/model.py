@@ -1,35 +1,28 @@
 from typing import Any, Literal
 
 import pydantic
-from pydantic import Field
 
 from actions import AnyAction
 
 
-class Model(pydantic.BaseModel):
-    @classmethod
-    def from_dict(cls, *a, **k):
-        return super().model_validate(*a, **k)
-
-
-class WorldRules(Model):
+class WorldRules(pydantic.BaseModel):
     neighborhood: Literal["moore", "neumann"]
     proportions: list[dict[str, int]]  # TODO should be stateID and parts
     size: dict[str, int]  # TODO should be height and width
     update: Literal["simultaneous"] = "simultaneous"
 
 
-class State(Model):
+class State(pydantic.BaseModel):
     id: int
     icon: str
     name: str
-    actions: list[AnyAction] = Field(default_factory=list)
+    actions: list[AnyAction] = pydantic.Field(default_factory=list)
 
     def __hash__(self):
         return hash(self.id)
 
 
-class Rules(Model):
+class Model(pydantic.BaseModel):
     meta: dict[str, Any] = None  # metarules, TODO
     states: list[State]
     world: WorldRules

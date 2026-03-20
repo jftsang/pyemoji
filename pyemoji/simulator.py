@@ -1,34 +1,34 @@
 import random
 from collections import Counter
-from typing import Iterable
+from typing import Iterable, Self
 
 import numpy as np
 from streamerate import stream  # type: ignore
 
 from agent import Agent
-from rules import Rules, State
+from model import Model, State
 
 
 class Simulator:
-    def __init__(self, rules: Rules):
-        self.rules = rules
+    def __init__(self, model: Model):
+        self.model = model
         self.grid = np.empty((self.height, self.width), dtype=object)
         self.time: int = 0
 
     @property
     def states(self) -> dict[int, State]:
-        return self.rules.statemap
+        return self.model.statemap
 
     @property
     def width(self) -> int:
-        return self.rules.world.size["width"]
+        return self.model.world.size["width"]
 
     @property
     def height(self) -> int:
-        return self.rules.world.size["height"]
+        return self.model.world.size["height"]
 
     def populations(self) -> dict[str, int]:
-        state_names = [state.name for state in self.rules.states]
+        state_names = [state.name for state in self.model.states]
         p = {n: 0 for n in state_names}
         count = Counter(
             stream(self.get_all_agents()).map(lambda agent: agent.state.name).to_list()
@@ -57,7 +57,7 @@ class Simulator:
     def get_neighbors(self, agent: Agent):
         x = agent.x  # horizontal position, second
         y = agent.y  # vertical position, first
-        hood = self.rules.world.neighborhood
+        hood = self.model.world.neighborhood
         coords: list[tuple[int, int]]
         if hood == "moore":
             coords = [
@@ -98,15 +98,15 @@ class Simulator:
     def setup_ics(self):
         self.time = 0
         # set up initial conditions
-        probs = [0] * len(self.rules.states)
-        for sp in self.rules.world.proportions:
+        probs = [0] * len(self.model.states)
+        for sp in self.model.world.proportions:
             sid, p = sp["stateID"], sp["parts"]
             probs[sid] = p
         for i in range(self.height):
             for j in range(self.width):
                 agent = Agent(i, j, simulator=self)
 
-                state: State = random.choices(self.rules.states, weights=probs)[0]  # type: ignore
+                state: State = random.choices(self.model.states, weights=probs)[0]  # type: ignore
 
                 agent.force_state(state)
                 self.grid[i, j] = agent
@@ -117,13 +117,13 @@ class Simulator:
         random.shuffle(agents)
         for agent in agents:
             agent.mark_as_not_updated()
+        for agent in agents:
             agent.calculate_next_state()
+        for agent in agents:
             agent.go_to_next_state()
-        ...
 
-    def run(self) -> Iterable[tuple[int, np.ndarray, dict[str, int]]]:
+    def run(self) -> Iterable[Self]:
         self.setup_ics()
         while True:
-            yield self.time, self.grid, self.populations()
-
+            yield self
             self.step()

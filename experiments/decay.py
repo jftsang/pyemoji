@@ -7,7 +7,7 @@ import pandas as pd
 from tqdm.auto import tqdm
 
 from actions import GoToStateAction, IfNeighborAction, IfRandomAction
-from rules import Rules, State, WorldRules
+from model import Model, State, WorldRules
 from simulator import Simulator
 
 downstate = State(id=0, name="down", icon="⚫️", actions=[])
@@ -27,7 +27,7 @@ for num in range(1, 9):
 
 upstate.actions.append(mightdecay)
 
-rules = Rules(
+rules = Model(
     states=[downstate, upstate],
     world=WorldRules(
         neighborhood="moore",
@@ -38,20 +38,23 @@ rules = Rules(
 
 simulator = Simulator(rules)
 
-pops = []
+if __name__ == "__main__":
+    pops = []
 
-tmax = 2000
-for t, s, p in tqdm(simulator.run(), total=tmax):
-    pops.append({"t": t, **p})
+    tmax = 2000
+    for s in tqdm(simulator.run(), total=tmax):
+        t = s.time
+        p = s.populations()
+        pops.append({"t": t, **p})
 
-    if p["up"] <= 10 or t > tmax:
-        break
+        if p["up"] <= 10 or t > tmax:
+            break
 
-df = pd.DataFrame.from_records(pops)
+    df = pd.DataFrame.from_records(pops)
 
-ax = plt.gca()
-ax.plot(df["t"], df["up"])
-ax.plot(df["t"], 31 * 29 * np.exp(-0.001 * df["t"]), "--", label="model")
-ax.set_yscale("log")
-ax.legend()
-plt.show()
+    ax = plt.gca()
+    ax.plot(df["t"], df["up"])
+    ax.plot(df["t"], 31 * 29 * np.exp(-0.001 * df["t"]), "--", label="model")
+    ax.set_yscale("log")
+    ax.legend()
+    plt.show()

@@ -7,7 +7,7 @@ from typing import Annotated, Literal, Protocol, TYPE_CHECKING, runtime_checkabl
 from pydantic import BaseModel, Field
 
 if TYPE_CHECKING:
-    from simulator import Agent
+    from agent import Agent
 
 
 class Action(ABC):
@@ -24,7 +24,7 @@ class IfNeighborAction(BaseModel, Action):
 
     def step(self, agent: "Agent"):
         neighbors = agent.simulator.get_neighbors(agent)
-        desired_state = agent.rules.sid2state(self.stateID)
+        desired_state = agent.model.sid2state(self.stateID)
         count = len([x for x in neighbors if x.state == desired_state])
         cond: bool
         if self.sign == ">=":
@@ -51,7 +51,30 @@ class GoToStateAction(BaseModel, Action):
     stateID: int
 
     def step(self, agent: "Agent"):
-        agent.next_state = agent.rules.sid2state(self.stateID)
+        agent.next_state = agent.model.sid2state(self.stateID)
+
+
+class MoveToAction(BaseModel, Action):
+    type: Literal["move_to"] = "move_to"
+    dest: Literal["anywhere", "neighbors"]
+    spotStateID: int
+    leaveStateID: int
+
+    def step(self, agent: "Agent"):
+        candidates: list["Agent"]
+        if self.dest == "anywhere":
+            candidates = agent.simulator.get_all_agents()
+        elif self.dest == "neighbors":
+            candidates = agent.simulator.get_neighbors(agent)
+        else:
+            raise ValueError
+
+        eligibles = [a for a in candidates if a.state.id == self.spotStateID]
+        if not eligibles:
+            return
+        chosen: "Agent" = random.choice(eligibles)
+        chosen.force_state(agent.state)
+        agent.next_state = agent.model.sid2state(self.leaveStateID)
 
 
 action_classes = [

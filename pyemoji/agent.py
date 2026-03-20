@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 
 from streamerate import stream  # type: ignore
 
-from rules import Rules, State
+from model import Model, State
 
 if TYPE_CHECKING:
     from actions import Action
@@ -15,7 +15,7 @@ class Agent:
         self.y: int = y
 
         self.simulator: Simulator = simulator
-        self.rules: Rules = self.simulator.rules
+        self.model: Model = self.simulator.model
 
         self.state: State = None  # type: ignore
         self.updated: bool = False
