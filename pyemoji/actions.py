@@ -16,7 +16,7 @@ class Action(ABC):
 
 
 class IfNeighborAction(BaseModel, Action):
-    type: Literal["if_neighbor"]
+    type: Literal["if_neighbor"] = "if_neighbor"
     sign: Literal[">", ">=", "=", "<=", "<"]
     num: int
     stateID: int
@@ -36,7 +36,7 @@ class IfNeighborAction(BaseModel, Action):
 
 
 class IfRandomAction(BaseModel, Action):
-    type: Literal["if_random"]
+    type: Literal["if_random"] = "if_random"
     probability: float
     actions: list["AnyAction"] = Field(default_factory=list)
 
@@ -47,7 +47,7 @@ class IfRandomAction(BaseModel, Action):
 
 
 class GoToStateAction(BaseModel, Action):
-    type: Literal["go_to_state"]
+    type: Literal["go_to_state"] = "go_to_state"
     stateID: int
 
     def step(self, agent: "Agent"):
