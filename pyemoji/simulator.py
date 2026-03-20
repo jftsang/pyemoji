@@ -55,8 +55,8 @@ class Simulator:
         return list(self.grid.flatten())
 
     def get_neighbors(self, agent: Agent):
-        x = agent.x  # horizontal position, second
-        y = agent.y  # vertical position, first
+        x = agent.x
+        y = agent.y
         hood = self.model.world.neighborhood
         coords: list[tuple[int, int]]
         if hood == "moore":
@@ -83,16 +83,16 @@ class Simulator:
         def legal(x, y):
             if x < 0:
                 return False
-            if x >= self.width:
+            if x >= self.height:
                 return False
             if y < 0:
                 return False
-            if y >= self.height:
+            if y >= self.width:
                 return False
             return True
 
         coords = stream(coords).starfilter(legal).to_list()
-        neighbors = [self.grid[xy[1], xy[0]] for xy in coords]
+        neighbors = [self.grid[xy[0], xy[1]] for xy in coords]
         return neighbors
 
     def setup_ics(self):
@@ -113,6 +113,7 @@ class Simulator:
 
     def step(self):
         self.time += 1
+        self.pre_step()
         agents = self.get_all_agents()
         random.shuffle(agents)
         for agent in agents:
@@ -122,8 +123,28 @@ class Simulator:
         for agent in agents:
             agent.go_to_next_state()
 
+        self.post_step()
+
+    def pre_step(self):
+        # override me
+        pass
+
+    def post_step(self):
+        # override me
+        pass
+
+    def should_stop(self) -> bool:
+        # override me
+        return False
+
+    def post_stop(self):
+        # override me
+        pass
+
     def run(self) -> Iterable[Self]:
         self.setup_ics()
-        while True:
+        while not self.should_stop():
             yield self
             self.step()
+
+        self.post_stop()

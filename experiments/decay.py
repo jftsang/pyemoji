@@ -14,7 +14,7 @@ downstate = State(id=0, name="down", icon="⚫️", actions=[])
 upstate = State(id=1, icon="🔴", name="up", actions=[])
 
 decay = GoToStateAction(stateID=0)
-mightdecay = IfRandomAction(probability=0.001, actions=[decay])
+mightdecay = IfRandomAction(probability=0.01, actions=[decay])
 
 # Progressively more likely to decay if you have neighbours who have
 # already decayed
@@ -36,25 +36,33 @@ rules = Model(
     ),
 )
 
-simulator = Simulator(rules)
+
+class DecaySim(Simulator):
+    def __init__(self, *a, **k):
+        super().__init__(*a, **k)
+        self.pop_history = []
+
+    def post_step(self):
+        t = self.time
+        p = self.populations()
+        self.pop_history.append({"t": t, **p})
+
+    def should_stop(self) -> bool:
+        return self.populations()["up"] <= 10 or self.time > 2000
+
+    def post_stop(self):
+        df = pd.DataFrame.from_records(simulator.pop_history)
+
+        ax = plt.gca()
+        ax.plot(df["t"], df["up"])
+        ax.plot(df["t"], 31 * 29 * np.exp(-0.01 * df["t"]), "--", label="model")
+        ax.set_yscale("log")
+        ax.legend()
+        plt.show()
+
+
+simulator = DecaySim(rules)
 
 if __name__ == "__main__":
-    pops = []
-
-    tmax = 2000
-    for s in tqdm(simulator.run(), total=tmax):
-        t = s.time
-        p = s.populations()
-        pops.append({"t": t, **p})
-
-        if p["up"] <= 10 or t > tmax:
-            break
-
-    df = pd.DataFrame.from_records(pops)
-
-    ax = plt.gca()
-    ax.plot(df["t"], df["up"])
-    ax.plot(df["t"], 31 * 29 * np.exp(-0.001 * df["t"]), "--", label="model")
-    ax.set_yscale("log")
-    ax.legend()
-    plt.show()
+    for _ in tqdm(simulator.run(), total=2000):
+        pass

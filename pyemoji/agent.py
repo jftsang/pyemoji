@@ -21,6 +21,12 @@ class Agent:
         self.updated: bool = False
         self.next_state: State = None  # type: ignore
 
+    def __str__(self):
+        return f"Agent({self.x}, {self.y}, {self.state.name})"
+
+    def __repr__(self):
+        return self.__str__()
+
     def mark_as_not_updated(self):
         self.updated = False
 

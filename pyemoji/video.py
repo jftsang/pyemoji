@@ -65,9 +65,10 @@ def imgen(states: Iterable[Simulator]):
         yield Image.fromarray(arr)
 
 
-from experiments.randomwalk import simulator
+# from experiments.randomwalk import simulator
+from experiments.decay import simulator
 
 states = simulator.run()
 g = imgen(states)
 # next(g)
-run(g, fps_cap=1)
+run(g, fps_cap=10)

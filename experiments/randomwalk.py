@@ -1,12 +1,8 @@
-import json
-from pathlib import Path
-
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 from tqdm.auto import tqdm
 
-from actions import GoToStateAction, IfNeighborAction, IfRandomAction, MoveToAction
+from actions import MoveToAction
 from model import Model, State, WorldRules
 from simulator import Simulator
 
@@ -24,19 +20,6 @@ rules = Model(
         size={"width": 13, "height": 17},
     ),
 )
-
-
-class RandomWalkSimulator(Simulator):
-    def setup_ics(self):
-        super().setup_ics()
-        for i in range(self.height):
-            for j in range(self.width):
-                agent = Agent(i, j, simulator=self)
-
-                state: State = random.choices(self.model.states, weights=probs)[0]  # type: ignore
-
-                agent.force_state(state)
-                self.grid[i, j] = agent
 
 
 simulator = Simulator(rules)
