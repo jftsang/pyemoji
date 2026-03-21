@@ -14,9 +14,12 @@ class Simulator:
     def __init__(self, model: Model):
         self.model = model
         self.grid = np.empty((self.height, self.width), dtype=object)
+        # flat version that will get shuffled
+        self._agents = np.empty(self.height * self.width, dtype=object)
         for i in range(self.height):
             for j in range(self.width):
                 agent = Agent(i, j, simulator=self)
+                self._agents[i * self.width + j] = agent
                 self.grid[i, j] = agent
 
         self.time: int = 0
@@ -78,8 +81,8 @@ class Simulator:
             for i in range(self.height)
         )
 
-    def get_all_agents(self) -> list[Agent]:
-        return list(self.grid.flatten())
+    def get_all_agents(self) -> np.ndarray:
+        return self._agents
 
     def get_neighbors(self, agent: Agent):
         x = agent.x
@@ -142,7 +145,7 @@ class Simulator:
     def step(self):
         self.time += 1
         agents = self.get_all_agents()
-        random.shuffle(agents)
+        np.random.shuffle(agents)
         for agent in agents:
             agent.mark_as_not_updated()
         for agent in agents:
