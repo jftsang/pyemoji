@@ -38,7 +38,8 @@ def run(frame_gen, fps_cap=30):
             scaled = pygame.transform.scale(surf, display_size)
             screen.blit(scaled, (0, 0))
             pygame.display.flip()
-            clock.tick(fps_cap)
+            if fps_cap:
+                clock.tick(fps_cap)
 
     except KeyboardInterrupt:
         pass
@@ -68,7 +69,8 @@ def imgen(states: Iterable[Simulator]):
 # from experiments.randomwalk import simulator
 from experiments.decay import simulator
 
-states = simulator.run()
-g = imgen(states)
-# next(g)
-run(g, fps_cap=10)
+if __name__ == "__main__":
+    states = simulator.run()
+    g = imgen(states)
+    # next(g)
+    run(g, fps_cap=10)

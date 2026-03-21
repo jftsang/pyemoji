@@ -24,7 +24,7 @@ class IfNeighborAction(BaseModel, Action):
 
     def step(self, agent: "Agent"):
         neighbors = agent.simulator.get_neighbors(agent)
-        desired_state = agent.model.sid2state(self.stateID)
+        desired_state = agent.model.states[self.stateID]
         count = len([x for x in neighbors if x.state == desired_state])
         cond: bool
         if self.sign == ">=":
@@ -51,7 +51,7 @@ class GoToStateAction(BaseModel, Action):
     stateID: int
 
     def step(self, agent: "Agent"):
-        agent.next_state = agent.model.sid2state(self.stateID)
+        agent.next_state = agent.model.states[self.stateID]
 
 
 class MoveToAction(BaseModel, Action):
@@ -74,7 +74,7 @@ class MoveToAction(BaseModel, Action):
             return
         chosen: "Agent" = random.choice(eligibles)
         chosen.force_state(agent.state)
-        agent.next_state = agent.model.sid2state(self.leaveStateID)
+        agent.next_state = agent.model.states[self.leaveStateID]
 
 
 action_classes = [

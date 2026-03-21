@@ -21,6 +21,9 @@ class State(pydantic.BaseModel):
     def __hash__(self):
         return hash(self.id)
 
+    def __str__(self):
+        return self.name
+
 
 class Model(pydantic.BaseModel):
     meta: dict[str, Any] = None  # metarules, TODO
@@ -30,9 +33,6 @@ class Model(pydantic.BaseModel):
     @property
     def statemap(self) -> dict[int, State]:
         return {s.id: s for s in self.states}
-
-    def sid2state(self, sid: int) -> State:
-        return self.statemap[sid]
 
     def sid2char(self, sid: int) -> str:
         return self.statemap[sid].icon

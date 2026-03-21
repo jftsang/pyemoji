@@ -1,9 +1,4 @@
 {
-  "meta": {
-    "description": "",
-    "draw": 2,
-    "fps": 30
-  },
   "states": [
     {
       "icon": "⚫️",
@@ -91,8 +86,8 @@
       }
     ],
     "size": {
-      "height": 5,
-      "width": 7
+      "height": 32,
+      "width": 32
     },
     "update": "simultaneous"
   }

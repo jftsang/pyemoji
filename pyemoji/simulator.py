@@ -143,8 +143,10 @@ class Simulator:
 
     def run(self) -> Iterable[Self]:
         self.setup_ics()
-        while not self.should_stop():
-            yield self
-            self.step()
+        try:
+            while not self.should_stop():
+                yield self
+                self.step()
 
-        self.post_stop()
+        finally:
+            self.post_stop()
