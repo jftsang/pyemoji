@@ -1,16 +1,28 @@
 [build-system]
 requires = ["setuptools>=68", "wheel"]
-build-backend = "setuptools.backends.legacy:build"
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "pyemoji"
 version = "0.1.0"
 requires-python = ">=3.12"
+dependencies = [
+    "numpy",
+    "matplotlib",
+    "pydantic",
+    "streamerate",
+]
+keywords = ["simulation", "agent-based simulation"]
+license = "MIT"
+
 
 [project.optional-dependencies]
+gui = [
+    "pillow",
+    "pygame"
+]
 dev = [
-    "pytest>=8.0",
-    "pydantic",
+    "pytest",
     "mypy",
     "flake8",
     "black"
@@ -27,3 +39,12 @@ dev = [
 
 [tool.black]
 # Add your black configuration here
+# Source - https://stackoverflow.com/a/76739181
+# Posted by Charalamm, modified by community. See post 'Timeline' for change history
+# Retrieved 2026-03-21, License - CC BY-SA 4.0
+
+[tool.setuptools.packages.find]
+where = ["."]  # list of folders that contain the packages (["."] by default)
+include = ["pyemoji"]  # package names should match these glob patterns (["*"] by default)
+exclude = []  # exclude packages matching these glob patterns (empty by default)
+namespaces = false  # to disable scanning PEP 420 namespaces (true by default)

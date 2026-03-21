@@ -2,12 +2,12 @@ import operator
 import random
 from abc import ABC, abstractmethod
 from functools import reduce
-from typing import Annotated, Literal, Protocol, TYPE_CHECKING, runtime_checkable
+from typing import Annotated, Literal, TYPE_CHECKING
 
 from pydantic import BaseModel, Field
 
 if TYPE_CHECKING:
-    from agent import Agent
+    from pyemoji.agent import Agent
 
 
 class Action(ABC):

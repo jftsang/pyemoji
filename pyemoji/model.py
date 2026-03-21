@@ -2,7 +2,7 @@ from typing import Any, Literal
 
 import pydantic
 
-from actions import AnyAction
+from pyemoji.actions import AnyAction
 
 
 class WorldRules(pydantic.BaseModel):

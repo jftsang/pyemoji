@@ -5,7 +5,7 @@ import pygame
 from PIL import Image
 from matplotlib import pyplot as plt
 
-from simulator import Simulator
+from pyemoji.simulator import Simulator
 
 
 def run(frame_gen, fps_cap=30):

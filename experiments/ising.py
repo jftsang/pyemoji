@@ -1,14 +1,13 @@
 import json
-from argparse import ArgumentParser
 from pathlib import Path
 
 import pandas as pd
 from matplotlib import pyplot as plt
 from tqdm.auto import tqdm
 
-from model import Model
-from simulator import Simulator
-from video import imgen, run
+from pyemoji.model import Model
+from pyemoji.simulator import Simulator
+from pyemoji.video import imgen, run
 
 
 class IsingSim(Simulator):

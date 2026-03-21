@@ -5,8 +5,8 @@ from typing import Iterable, Self
 import numpy as np
 from streamerate import stream  # type: ignore
 
-from agent import Agent
-from model import Model, State
+from pyemoji.agent import Agent
+from pyemoji.model import Model, State
 
 
 class Simulator:

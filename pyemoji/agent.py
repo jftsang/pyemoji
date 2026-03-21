@@ -2,11 +2,11 @@ from typing import TYPE_CHECKING
 
 from streamerate import stream  # type: ignore
 
-from model import Model, State
+from pyemoji.model import Model, State
 
 if TYPE_CHECKING:
-    from actions import Action
-    from simulator import Simulator
+    from pyemoji.actions import Action
+    from pyemoji.simulator import Simulator
 
 
 class Agent:
