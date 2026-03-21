@@ -17,22 +17,22 @@ class IsingSim(Simulator):
         self.pop_history = []
 
     def post_step(self):
+        super().post_step()
         t = self.time
         p = self.populations()
         self.pop_history.append({"t": t, **p})
 
     def should_stop(self) -> bool:
-        return self.time > 200
+        return self.time > 20
 
-    def post_stop(self):
+    def finalize(self):
         df = pd.DataFrame.from_records(self.pop_history)
 
         fig, axs = plt.subplots(2, 1)
         ax = axs[0]
-        ax.plot(df["t"], df["down"] / self.grid.size)
-        ax.plot(df["t"], df["up"] / self.grid.size)
-        # ax.plot(df["t"], 128 * 128 * np.exp(-0.01 * df["t"]), "--", label="model")
-        ax.set_ylim(-0.1, 1.1)
+        ax.plot(df["t"], df["down"] / self.grid.size, "k", label="down")
+        ax.plot(df["t"], df["up"] / self.grid.size, "r", label="up")
+        # ax.set_ylim(-0.1, 1.1)
         ax.legend()
 
         ax = axs[1]
@@ -40,6 +40,8 @@ class IsingSim(Simulator):
         ax.imshow(img)
 
         plt.show()
+
+        super().finalize()
 
 
 def main(argv: str | None = None) -> None:
@@ -52,7 +54,7 @@ def main(argv: str | None = None) -> None:
     simulator.writers.append(writer)
 
     with writer:
-        states = tqdm(simulator.run(), total=500)
+        states = tqdm(simulator.run(), total=20)
         for _ in states:
             pass
         # g = imgen(states)

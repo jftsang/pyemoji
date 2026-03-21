@@ -169,7 +169,7 @@ class Simulator:
 
     def finalize(self):
         # override me
-        pass
+        print(self.dump())
 
     def run(self) -> Iterable[Self]:
         self.setup_ics()

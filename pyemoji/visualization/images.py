@@ -1,9 +1,8 @@
 from typing import Iterable
 
 import numpy as np
-import pygame
-from PIL import Image
 from matplotlib import pyplot as plt
+from PIL import Image
 from streamerate import stream
 
 from pyemoji.simulator import Simulator
