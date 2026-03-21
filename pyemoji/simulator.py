@@ -80,7 +80,7 @@ class Simulator:
         else:
             raise ValueError
 
-        def legal(x, y):
+        def legal(x: int, y: int) -> bool:
             if x < 0:
                 return False
             if x >= self.height:
@@ -91,7 +91,11 @@ class Simulator:
                 return False
             return True
 
-        coords = stream(coords).starfilter(legal).to_list()
+        coords = (
+            stream(coords)
+            .starfilter(legal)  # ty:ignore[invalid-argument-type]
+            .to_list()
+        )
         neighbors = [self.grid[xy[0], xy[1]] for xy in coords]
         return neighbors
 

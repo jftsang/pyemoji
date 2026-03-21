@@ -66,10 +66,9 @@ def imgen(states: Iterable[Simulator]):
         yield Image.fromarray(arr)
 
 
-
 if __name__ == "__main__":
     # from experiments.randomwalk import simulator
-    from ..experiments.decay import simulator
+    from pyemoji.experiments.decay import simulator
 
     states = simulator.run()
     g = imgen(states)

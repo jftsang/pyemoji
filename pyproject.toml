@@ -12,11 +12,7 @@ dependencies = [
     "pandas",
     "pydantic",
     "streamerate",
-    "pytest>=9.0.2",
     "tqdm",
-    "pandas-stubs==3.0.0.260204",
-    "ty>=0.0.24",
-    "black>=26.3.1",
 ]
 keywords = ["simulation", "agent-based simulation"]
 license = "MIT"
@@ -28,9 +24,10 @@ gui = [
     "pygame"
 ]
 dev = [
-    "pytest",
+    "black>=26.3.1",
     "flake8",
-    "black",
+    "pandas-stubs==3.0.0.260204",
+    "pytest",
     "ty>=0.0.24",
 ]
 
@@ -54,10 +51,3 @@ where = ["."]  # list of folders that contain the packages (["."] by default)
 include = ["pyemoji"]  # package names should match these glob patterns (["*"] by default)
 exclude = []  # exclude packages matching these glob patterns (empty by default)
 namespaces = false  # to disable scanning PEP 420 namespaces (true by default)
-
-[tool.uv]
-no-build-package = ["pygame"]
-
-[dependency-groups]
-dev = [
-]
