@@ -33,12 +33,13 @@ class Agent:
     def calculate_next_state(self):
         if self.updated:
             return
+
         # default behaviour
         self.next_state = self.state
-        actions = self.state.actions
-        self.perform_actions(actions)
 
-    def perform_actions(self, actions: list["Action"]):
+        self.perform_actions(self.state.actions)
+
+    def perform_actions(self, actions: list["Action"]) -> None:
         initial_next_state = self.next_state
         for action in actions:
             action.step(self)

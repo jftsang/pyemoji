@@ -25,7 +25,7 @@ class IsingSim(Simulator):
     def should_stop(self) -> bool:
         return self.time > 20
 
-    def finalize(self):
+    def produce_plots(self):
         df = pd.DataFrame.from_records(self.pop_history)
 
         fig, axs = plt.subplots(2, 1)
@@ -41,6 +41,8 @@ class IsingSim(Simulator):
 
         plt.show()
 
+    def finalize(self):
+        # self.produce_plots()
         super().finalize()
 
 
