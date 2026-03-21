@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from streamerate import stream  # type: ignore
+from streamerate import stream
 
 from pyemoji.model import Model, State
 

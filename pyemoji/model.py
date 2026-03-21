@@ -26,7 +26,7 @@ class State(pydantic.BaseModel):
 
 
 class Model(pydantic.BaseModel):
-    meta: dict[str, Any] = None  # metarules, TODO
+    meta: dict[str, Any] = None  # metarules, TODO  # ty:ignore[invalid-assignment]
     states: list[State]
     world: WorldRules
 

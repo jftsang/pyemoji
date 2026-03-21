@@ -83,9 +83,12 @@ action_classes = [
     GoToStateAction,
 ]
 
+
+union_type = reduce(operator.ior, action_classes)
+
 AnyAction = Annotated[
-    reduce(operator.ior, action_classes),
-    Field(discriminator="type"),
+    union_type,
+    Field(discriminator="type")
 ]
 
 

@@ -13,6 +13,10 @@ dependencies = [
     "pydantic",
     "streamerate",
     "pytest>=9.0.2",
+    "tqdm",
+    "pandas-stubs==3.0.0.260204",
+    "ty>=0.0.24",
+    "black>=26.3.1",
 ]
 keywords = ["simulation", "agent-based simulation"]
 license = "MIT"
@@ -25,9 +29,9 @@ gui = [
 ]
 dev = [
     "pytest",
-    "mypy",
     "flake8",
-    "black"
+    "black",
+    "ty>=0.0.24",
 ]
 
 [tool.pytest.ini_options]
@@ -53,3 +57,7 @@ namespaces = false  # to disable scanning PEP 420 namespaces (true by default)
 
 [tool.uv]
 no-build-package = ["pygame"]
+
+[dependency-groups]
+dev = [
+]

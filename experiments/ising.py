@@ -37,7 +37,7 @@ class IsingSim(Simulator):
 
 def main(argv: str | None = None) -> None:
     rules = Path(__file__).parent / "ising.json"
-    d = json.loads(rules.read_text())
+    d = json.loads(rules.read_text(encoding="utf-8"))
     rules = Model.model_validate(d)
 
     simulator = IsingSim(rules)
