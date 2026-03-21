@@ -1,11 +1,12 @@
 import random
 from collections import Counter
-from typing import Iterable, Self
+from typing import Iterable, Self, Any
 
 import numpy as np
 from streamerate import stream  # type: ignore
 
 from pyemoji.agent import Agent
+from pyemoji.file_writers import FileWriter
 from pyemoji.model import Model, State
 
 
@@ -13,7 +14,34 @@ class Simulator:
     def __init__(self, model: Model):
         self.model = model
         self.grid = np.empty((self.height, self.width), dtype=object)
+        for i in range(self.height):
+            for j in range(self.width):
+                agent = Agent(i, j, simulator=self)
+                self.grid[i, j] = agent
+
         self.time: int = 0
+
+        self.writers: list[FileWriter] = []
+
+    def dump(self) -> dict[str, Any]:
+        if len(self.states) > 15:
+            raise ValueError("Too many states to serialize")
+        agent2sid = np.vectorize(lambda ag: ag.state.id if ag.state else 0)
+        serialized_grid: np.ndarray = agent2sid(self.grid)
+        return {
+            "time": self.time,
+            "grid": "".join(f"{x:x}" for x in serialized_grid.flat),
+        }
+
+    def load(self, d):
+        self.time = d["time"]
+        states = d["grid"]
+
+        for i in range(self.height):
+            for j in range(self.width):
+                self.grid[i, j].force_state(
+                    self.states[int(states[i * self.width + j])]
+                )
 
     @property
     def states(self) -> dict[int, State]:
@@ -28,13 +56,12 @@ class Simulator:
         return self.model.world.size["height"]
 
     def populations(self) -> dict[str, int]:
+        # make sure we pick up states with zero population
         state_names = [state.name for state in self.model.states]
-        p = {n: 0 for n in state_names}
         count = Counter(
             stream(self.get_all_agents()).map(lambda agent: agent.state.name).to_list()
         )
-        p.update(count)
-        return p
+        return {sn: count.get(sn, 0) for sn in state_names}
 
     def __str__(self):
         return repr(self)
@@ -108,12 +135,9 @@ class Simulator:
             probs[sid] = p
         for i in range(self.height):
             for j in range(self.width):
-                agent = Agent(i, j, simulator=self)
-
+                agent = self.grid[i, j]
                 state: State = random.choices(self.model.states, weights=probs)[0]  # type: ignore
-
                 agent.force_state(state)
-                self.grid[i, j] = agent
 
     def step(self):
         self.time += 1
@@ -127,17 +151,16 @@ class Simulator:
         for agent in agents:
             agent.go_to_next_state()
 
-        self.post_step()
-
     def pre_step(self):
         # override me
         pass
 
     def post_step(self):
         # override me
-        pass
+        self.write_to_output_files()
 
     def should_stop(self) -> bool:
+        """Termination condition. Gets checked before each step."""
         # override me
         return False
 
@@ -145,12 +168,28 @@ class Simulator:
         # override me
         pass
 
+    def finalize(self):
+        # override me
+        pass
+
     def run(self) -> Iterable[Self]:
         self.setup_ics()
+        self.write_output_headers()
         try:
             while not self.should_stop():
                 yield self
+                self.pre_step()
                 self.step()
+                self.post_step()
+            self.post_stop()
 
         finally:
-            self.post_stop()
+            self.finalize()
+
+    def write_output_headers(self):
+        for writer in self.writers:
+            writer.write_header()
+
+    def write_to_output_files(self):
+        for writer in self.writers:
+            writer.write_state()

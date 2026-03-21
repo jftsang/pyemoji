@@ -1,14 +1,11 @@
-import json
-from pathlib import Path
-
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from tqdm.auto import tqdm
 
-from actions import GoToStateAction, IfNeighborAction, IfRandomAction
-from model import Model, State, WorldRules
-from simulator import Simulator
+from pyemoji.actions import GoToStateAction, IfNeighborAction, IfRandomAction
+from pyemoji.model import Model, State, WorldRules
+from pyemoji.simulator import Simulator
 
 downstate = State(id=0, name="down", icon="⚫️", actions=[])
 upstate = State(id=1, icon="🔴", name="up", actions=[])
@@ -48,14 +45,19 @@ class DecaySim(Simulator):
         self.pop_history.append({"t": t, **p})
 
     def should_stop(self) -> bool:
-        return self.populations()["up"] <= 10 or self.time > 2000
+        return self.populations()["up"] <= 100 or self.time > 2
 
     def post_stop(self):
         df = pd.DataFrame.from_records(simulator.pop_history)
 
         ax = plt.gca()
-        ax.plot(df["t"], df["up"])
-        ax.plot(df["t"], 31 * 29 * np.exp(-0.01 * df["t"]), "--", label="model")
+        ax.plot(df["t"], df["up"], label="actual population")
+        ax.plot(
+            df["t"],
+            self.grid.size * np.exp(-mightdecay.probability * df["t"]),
+            "--",
+            label="exponential decay",
+        )
         ax.set_yscale("log")
         ax.legend()
         plt.show()
@@ -64,5 +66,12 @@ class DecaySim(Simulator):
 simulator = DecaySim(rules)
 
 if __name__ == "__main__":
-    for _ in tqdm(simulator.run(), total=2000):
+    print(d := simulator.dump())
+
+    for _ in tqdm(simulator.run(), total=2):
         pass
+
+    print(simulator.dump())
+
+    simulator.load(d)
+    print(simulator.dump())
