@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pyemoji"
-version = "0.1.0"
+version = "1.0.0"
 requires-python = ">=3.12,<3.13"
 dependencies = [
     "numpy",
@@ -16,6 +16,14 @@ dependencies = [
 ]
 keywords = ["simulation", "agent-based simulation"]
 license = "MIT"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Typing :: Typed",
+]
 
 
 [project.optional-dependencies]
@@ -25,6 +33,7 @@ gui = [
 ]
 dev = [
     "black>=26.3.1",
+    "build",
     "flake8",
     "pandas-stubs==3.0.0.260204",
     "pytest",
