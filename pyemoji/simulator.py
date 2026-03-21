@@ -141,7 +141,6 @@ class Simulator:
 
     def step(self):
         self.time += 1
-        self.pre_step()
         agents = self.get_all_agents()
         random.shuffle(agents)
         for agent in agents:
