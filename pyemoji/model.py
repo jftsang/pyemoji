@@ -13,10 +13,12 @@ class WorldRules(pydantic.BaseModel):
 
 
 class State(pydantic.BaseModel):
+    __slots__ = ["id", "icon", "name", "actions"]
+
     id: int
     icon: str
     name: str
-    actions: list[AnyAction] = pydantic.Field(default_factory=list)
+    actions: list[AnyAction]
 
     def __hash__(self):
         return hash(self.id)

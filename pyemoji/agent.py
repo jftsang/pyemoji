@@ -10,6 +10,8 @@ if TYPE_CHECKING:
 
 
 class Agent:
+    __slots__ = ["x", "y", "simulator", "model", "state", "updated", "next_state"]
+
     def __init__(self, x, y, simulator: "Simulator"):
         self.x: int = x
         self.y: int = y

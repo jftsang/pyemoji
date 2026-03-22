@@ -1,19 +1,52 @@
-import json
-from pathlib import Path
-
 import pandas as pd
 from matplotlib import pyplot as plt
 from tqdm.auto import tqdm
 
+from pyemoji.actions import GoToStateAction, IfRandomAction, IfNeighborAction
 from pyemoji.file_writers import PopulationFileWriter
-from pyemoji.model import Model
+from pyemoji.model import Model, State, WorldRules
 from pyemoji.simulator import Simulator
 from pyemoji.visualization.images import ImageMaker
+from pyemoji.visualization.pygame import imgen, run
+
+downstate = State(id=0, name="down", icon="⚫️", actions=[])
+upstate = State(id=1, icon="🔴", name="up", actions=[])
+
+flipdown = GoToStateAction(stateID=0)
+flipup = GoToStateAction(stateID=1)
+maybe = lambda p, a: IfRandomAction(probability=p, actions=[a])
+
+p_assisted_flip = 0.05
+p_random_flip = 0.0001
+
+downstate.actions = [
+    IfNeighborAction(
+        sign=">=", num=5, stateID=1, actions=[maybe(p_assisted_flip, flipup)]
+    ),
+    maybe(p_random_flip, flipup),
+]
+
+upstate.actions = [
+    IfNeighborAction(
+        sign=">=", num=5, stateID=0, actions=[maybe(p_assisted_flip, flipdown)]
+    ),
+    maybe(p_random_flip, flipdown),
+]
+
+model = Model(
+    states=[downstate, upstate],
+    world=WorldRules(
+        neighborhood="moore",
+        proportions=[{"stateID": 0, "parts": 1}, {"stateID": 1, "parts": 1}],
+        size={"height": 23, "width": 29},
+    ),
+)
 
 
 class IsingSim(Simulator):
-    def __init__(self, *a, **k):
-        super().__init__(*a, **k)
+    def __init__(self, model: Model, tmax=100):
+        super().__init__(model)
+        self.tmax = tmax
         self.pop_history = []
 
     def post_step(self):
@@ -23,7 +56,7 @@ class IsingSim(Simulator):
         self.pop_history.append({"t": t, **p})
 
     def should_stop(self) -> bool:
-        return self.time > 20
+        return self.time > self.tmax
 
     def produce_plots(self):
         df = pd.DataFrame.from_records(self.pop_history)
@@ -42,21 +75,17 @@ class IsingSim(Simulator):
         plt.show()
 
     def finalize(self):
-        # self.produce_plots()
+        self.produce_plots()
         super().finalize()
 
 
-def main(argv: str | None = None) -> None:
-    rules = Path(__file__).parent / "ising.json"
-    d = json.loads(rules.read_text(encoding="utf-8"))
-    rules = Model.model_validate(d)
-
-    simulator = IsingSim(rules)
+def main() -> None:
+    simulator = IsingSim(model, tmax=1000)
     writer = PopulationFileWriter(simulator, "ising.population.csv")
     simulator.writers.append(writer)
 
     with writer:
-        states = tqdm(simulator.run(), total=20)
+        states = tqdm(simulator.run(), total=simulator.tmax)
         for _ in states:
             pass
         # g = imgen(states)
