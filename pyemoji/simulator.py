@@ -1,9 +1,10 @@
 import random
 from collections import Counter
-from typing import Iterable, Self, Any
+from itertools import product
+from typing import Iterable, Self, Sequence, Any
 
 import numpy as np
-from streamerate import stream  # type: ignore
+from streamerate import stream
 
 from pyemoji.agent import Agent
 from pyemoji.file_writers import FileWriter
@@ -13,14 +14,20 @@ from pyemoji.model import Model, State
 class Simulator:
     def __init__(self, model: Model):
         self.model = model
+
+        # Agents don't actually "move around". When an agent "moves" to
+        # another cell, what actually happens is that the agent at the
+        # destination cell is updated.
         self.grid = np.empty((self.height, self.width), dtype=object)
-        # flat version that will get shuffled
+        # flat list of agents that will be shuffled
         self._agents = np.empty(self.height * self.width, dtype=object)
-        for i in range(self.height):
-            for j in range(self.width):
-                agent = Agent(i, j, simulator=self)
-                self._agents[i * self.width + j] = agent
-                self.grid[i, j] = agent
+
+        # Initialise with arbitrary agents. Their states will be set
+        # later.
+        for i, j in product(range(self.height), range(self.width)):
+            agent = Agent(i, j, simulator=self)
+            self._agents[i * self.width + j] = agent
+            self.grid[i, j] = agent
 
         self.time: int = 0
 
@@ -40,11 +47,10 @@ class Simulator:
         self.time = d["time"]
         states = d["grid"]
 
-        for i in range(self.height):
-            for j in range(self.width):
-                self.grid[i, j].force_state(
-                    self.states[int(states[i * self.width + j])]
-                )
+        for i, j in product(range(self.height), range(self.width)):
+            self.grid[i, j].force_state(
+                self.states[int(states[i * self.width + j])]
+            )
 
     @property
     def states(self) -> dict[int, State]:
@@ -136,11 +142,10 @@ class Simulator:
         for sp in self.model.world.proportions:
             sid, p = sp["stateID"], sp["parts"]
             probs[sid] = p
-        for i in range(self.height):
-            for j in range(self.width):
-                agent = self.grid[i, j]
-                state: State = random.choices(self.model.states, weights=probs)[0]  # type: ignore
-                agent.force_state(state)
+        for i, j in product(range(self.height), range(self.width)):
+            agent = self.grid[i, j]
+            state: State = random.choices(self.model.states, weights=probs)[0]
+            agent.force_state(state)
 
     def step(self):
         self.time += 1
@@ -158,6 +163,9 @@ class Simulator:
         pass
 
     def post_step(self):
+        """Runs after each step. Put stuff like writing to output files
+        or keeping track of the system state here.
+        """
         # override me
         self.write_to_output_files()
 
@@ -167,12 +175,27 @@ class Simulator:
         return False
 
     def post_stop(self):
+        """Runs after the termination condition `self.should_stop` is
+        attained, that is, after a successful end to the simulation. Put
+        stuff like postprocessing here.
+        """
         # override me
         pass
 
-    def finalize(self):
-        # override me
+    def handle_error(self, exc: BaseException):
+        """Runs if the simulation stops without terminating
+        successfully. Default behaviour is to dump the state and then
+        reraise the exception.
+        """
         print(self.dump())
+        raise exc
+
+    def finalize(self):
+        """Unconditionally runs when the simulation is stopped, whether
+        it terminated successfully or encountered an exception. Put
+        stuff like dumping the state or updating files here.
+        """
+        # override me
 
     def run(self) -> Iterable[Self]:
         self.setup_ics()
@@ -185,13 +208,25 @@ class Simulator:
                 self.post_step()
             self.post_stop()
 
+        # BaseException, not Exception, so that KeyboardInterrupt is
+        # caught. It is the responsibility of `handle_error` to decide
+        # what to do.
+        except BaseException as exc:
+            self.handle_error(exc)
+
         finally:
             self.finalize()
 
     def write_output_headers(self):
+        """Triggers all the writers to write their header rows. This
+        should run once at the start of a simulation.
+        """
         for writer in self.writers:
             writer.write_header()
 
     def write_to_output_files(self):
+        """Triggers all the writers to write a row. This should run
+        after each step.
+        """
         for writer in self.writers:
             writer.write_state()
