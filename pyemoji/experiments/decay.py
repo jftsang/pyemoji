@@ -25,7 +25,7 @@ upstate = State(id=1, icon="🔴", name="up", actions=[])
 # already decayed.
 
 base_rate = 0.01
-additional_rate = 0.002
+additional_rate = 0.01
 neighbors_needed_for_assistance = 4
 
 decay = GoToStateAction(stateID=0)
@@ -42,7 +42,7 @@ upstate.actions.append(assisted_decay)
 rules = Model(
     states=[downstate, upstate],
     world=WorldRules(
-        neighborhood="moore",
+        neighborhood="neumann",
         proportions=[{"stateID": 0, "parts": 0}, {"stateID": 1, "parts": 100}],
         # size={"width": 31, "height": 29},
         size={"width": 101, "height": 103},
@@ -62,25 +62,39 @@ class DecaySim(Simulator):
         self.pop_history.append({"t": t, **p})
 
     def should_stop(self) -> bool:
-        return self.populations()["up"] <= 10 or self.time > self.tmax
+        return self.populations()["up"] <= 50 or self.time > self.tmax
 
-    def post_stop(self):
+    def finalize(self):
         df = pd.DataFrame.from_records(simulator.pop_history)
+        t = df["t"].to_numpy()
+        pop = df["up"].to_numpy()
+
+        # Number predicted by exponential decay
+        exp_decay = self.grid.size * np.exp(-base_rate * t)
 
         ax = plt.gca()
-        ax.plot(df["t"], df["up"], "k-", label="actual population")
+        ax.plot(t, pop, "r-", label="actual population")
         ax.plot(
-            df["t"],
-            self.grid.size * np.exp(-base_rate * df["t"]),
-            "k--",
-            label="exponential decay",
+            t,
+            exp_decay,
+            "k-",
+            label="exponential decay (base rate)",
         )
         ax.plot(
-            df["t"],
-            self.grid.size * np.exp(-(base_rate + additional_rate) * df["t"]),
+            t,
+            self.grid.size * np.exp(-(base_rate + additional_rate) * t),
             "k:",
             label="exponential decay (always assisted)",
         )
+
+        # Mean field theory predicts...
+        delta = additional_rate / base_rate
+        r0 = base_rate
+        # mft_p = np.exp(-base_rate * t) / (1 - delta * np.exp(-base_rate * t))
+        mft_p = (np.exp(4 * r0 * t) + delta * (np.exp(4 * r0 * t) - 1)) ** -0.25
+        ax.plot(t, self.grid.size * mft_p, "k-.", label="mean field theory")
+
+        ax.set_ylim(50 * 0.95, self.grid.size * 1.05)
         ax.set_yscale("log")
         ax.legend()
         plt.show()
