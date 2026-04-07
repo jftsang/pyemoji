@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 from tqdm.auto import tqdm
 
-from pyemoji.actions import GoToStateAction, IfNeighborAction, IfRandomAction
+from pyemoji.actions import GoToStateAction, IfRandomAction
 from pyemoji.model import Model, State, WorldRules
 from pyemoji.simulator import Simulator
 

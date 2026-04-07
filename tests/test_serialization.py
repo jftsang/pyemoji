@@ -1,4 +1,4 @@
-from pyemoji.actions import GoToStateAction, IfRandomAction
+from pyemoji.actions import GoToStateAction
 from pyemoji.model import Model, State, WorldRules
 from pyemoji.simulator import Simulator
 

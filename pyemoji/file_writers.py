@@ -1,7 +1,6 @@
 import abc
-from os import PathLike
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, TextIO
 
 if TYPE_CHECKING:
     from pyemoji.simulator import Simulator
@@ -11,7 +10,7 @@ class FileWriter(abc.ABC):
     def __init__(self, simulator: "Simulator", filename: str | Path):
         self.simulator: "Simulator" = simulator
         self.filename: Path = Path(filename)
-        self.f: TextIO = None  # type: ignore
+        self.f: TextIO | None = None
 
     def __enter__(self):
         self.f = self.filename.open("a")

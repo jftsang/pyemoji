@@ -18,4 +18,4 @@ def test_can_load_json(subtests):
         with subtests.test(f.name):
             j = f.read_text(encoding="utf-8")
             d = json.loads(j)
-            r = Model.model_validate(d)
+            _ = Model.model_validate(d)

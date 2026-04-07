@@ -13,7 +13,11 @@ upstate = State(id=1, icon="🔴", name="up", actions=[])
 
 flipdown = GoToStateAction(stateID=0)
 flipup = GoToStateAction(stateID=1)
-maybe = lambda p, a: IfRandomAction(probability=p, actions=[a])
+
+
+def maybe(p, a):
+    return IfRandomAction(probability=p, actions=[a])
+
 
 p_assisted_flip = 0.05
 p_random_flip = 0.0001

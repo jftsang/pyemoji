@@ -1,7 +1,7 @@
 import random
 from collections import Counter
 from itertools import product
-from typing import Iterable, Self, Sequence, Any
+from typing import Iterable, Self, Any
 
 import numpy as np
 from streamerate import stream

@@ -1,7 +1,5 @@
 from typing import TYPE_CHECKING
 
-from streamerate import stream
-
 from pyemoji.model import Model, State
 
 if TYPE_CHECKING:

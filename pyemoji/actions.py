@@ -2,7 +2,7 @@ import operator
 import random
 from abc import ABC, abstractmethod
 from functools import reduce
-from typing import TYPE_CHECKING, Annotated, Any, Literal
+from typing import TYPE_CHECKING, Annotated, Literal
 
 import pydantic
 
