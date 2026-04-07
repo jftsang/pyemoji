@@ -2,9 +2,9 @@ import operator
 import random
 from abc import ABC, abstractmethod
 from functools import reduce
-from typing import Annotated, Literal, TYPE_CHECKING
+from typing import TYPE_CHECKING, Annotated, Any, Literal
 
-from pydantic import BaseModel, Field
+import pydantic
 
 if TYPE_CHECKING:
     from pyemoji.agent import Agent
@@ -15,12 +15,12 @@ class Action(ABC):
     def step(self, agent: "Agent") -> None: ...
 
 
-class IfNeighborAction(BaseModel, Action):
+class IfNeighborAction(pydantic.BaseModel, Action):
     type: Literal["if_neighbor"] = "if_neighbor"
     sign: Literal[">", ">=", "=", "<=", "<"]
     num: int
     stateID: int
-    actions: list["AnyAction"] = Field(default_factory=list)
+    actions: list["AnyAction"] = pydantic.Field(default_factory=list)
 
     def step(self, agent: "Agent"):
         neighbors = agent.simulator.get_neighbors(agent)
@@ -35,10 +35,10 @@ class IfNeighborAction(BaseModel, Action):
             agent.perform_actions(self.actions)
 
 
-class IfRandomAction(BaseModel, Action):
+class IfRandomAction(pydantic.BaseModel, Action):
     type: Literal["if_random"] = "if_random"
     probability: float
-    actions: list["AnyAction"] = Field(default_factory=list)
+    actions: list["AnyAction"] = pydantic.Field(default_factory=list)
 
     def step(self, agent: "Agent"):
         x = random.uniform(0, 1)
@@ -46,7 +46,7 @@ class IfRandomAction(BaseModel, Action):
             agent.perform_actions(self.actions)
 
 
-class GoToStateAction(BaseModel, Action):
+class GoToStateAction(pydantic.BaseModel, Action):
     type: Literal["go_to_state"] = "go_to_state"
     stateID: int
 
@@ -54,11 +54,22 @@ class GoToStateAction(BaseModel, Action):
         agent.next_state = agent.model.states[self.stateID]
 
 
-class MoveToAction(BaseModel, Action):
+class MoveToAction(pydantic.BaseModel, Action):
     type: Literal["move_to"] = "move_to"
     dest: Literal["anywhere", "neighbors"]
     spotStateID: int
     leaveStateID: int
+
+    @pydantic.model_validator(mode="before")
+    @classmethod
+    def fix_types(cls, data: dict) -> dict:
+        if isinstance(ssid := data["spotStateID"], str):
+            data["spotStateID"] = int(ssid)
+        if "dest" not in data:
+            s = int(data.pop("space"))  # raises KeyError
+            data["dest"] = {0: "neighbors", 1: "anywhere"}[s]
+
+        return data
 
     def step(self, agent: "Agent"):
         candidates: list["Agent"]
@@ -81,15 +92,13 @@ action_classes = [
     IfNeighborAction,
     IfRandomAction,
     GoToStateAction,
+    MoveToAction,
 ]
 
 
 union_type = reduce(operator.ior, action_classes)
 
-AnyAction = Annotated[
-    union_type,
-    Field(discriminator="type")
-]
+AnyAction = Annotated[union_type, pydantic.Field(discriminator="type")]
 
 
 for ac in action_classes:
