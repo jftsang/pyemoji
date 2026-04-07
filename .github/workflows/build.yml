@@ -29,6 +29,17 @@ jobs:
       run: |
         pytest
 
+    - name: Run ruff format and commit
+      run: |
+        ruff format .
+        if [[ -n $(git status --porcelain) ]]; then
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add .
+          git commit -m "Auto-format code with ruff"
+          git push
+        fi
+
     - name: Run linter
       run: |
         ruff check --output-format=github || echo "Linter completed with warnings"
