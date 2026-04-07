@@ -31,13 +31,21 @@ jobs:
 
     - name: Run ruff format and commit
       run: |
-        ruff format .
-        if [[ -n $(git status --porcelain) ]]; then
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add .
-          git commit -m "Auto-format code with ruff"
-          git push
+        # Get changed Python files
+        CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD | grep '\.py$' || true)
+        if [[ -n "$CHANGED_FILES" ]]; then
+          echo "Formatting changed Python files:"
+          echo "$CHANGED_FILES"
+          ruff format $CHANGED_FILES
+          if [[ -n $(git status --porcelain) ]]; then
+            git config --local user.email "action@github.com"
+            git config --local user.name "GitHub Action"
+            git add $CHANGED_FILES
+            git commit -m "Auto-format changed Python files with ruff"
+            git push
+          fi
+        else
+          echo "No Python files changed, skipping formatting"
         fi
 
     - name: Run linter
