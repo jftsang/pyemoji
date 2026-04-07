@@ -37,6 +37,7 @@ dev = [
     "flake8",
     "pandas-stubs==3.0.0.260204",
     "pytest",
+    "ruff>=0.15.9",
     "ty>=0.0.24",
 ]
 

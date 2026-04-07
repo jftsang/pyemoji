@@ -28,3 +28,11 @@ jobs:
     - name: Run tests
       run: |
         pytest
+
+    - name: Run linter
+      run: |
+        ruff check --output-format=github || echo "Linter completed with warnings"
+
+    - name: Run type checks
+      run: |
+        ty check --output-format=github || echo "Type checking completed with warnings"
