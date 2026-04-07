@@ -48,9 +48,7 @@ class Simulator:
         states = d["grid"]
 
         for i, j in product(range(self.height), range(self.width)):
-            self.grid[i, j].force_state(
-                self.states[int(states[i * self.width + j])]
-            )
+            self.grid[i, j].force_state(self.states[int(states[i * self.width + j])])
 
     @property
     def states(self) -> dict[int, State]:
@@ -58,11 +56,11 @@ class Simulator:
 
     @property
     def width(self) -> int:
-        return self.model.world.size["width"]
+        return self.model.world.width
 
     @property
     def height(self) -> int:
-        return self.model.world.size["height"]
+        return self.model.world.height
 
     def populations(self) -> dict[str, int]:
         # make sure we pick up states with zero population

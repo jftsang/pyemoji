@@ -2,12 +2,11 @@ import pandas as pd
 from matplotlib import pyplot as plt
 from tqdm.auto import tqdm
 
-from pyemoji.actions import GoToStateAction, IfRandomAction, IfNeighborAction
+from pyemoji.actions import GoToStateAction, IfNeighborAction, IfRandomAction
 from pyemoji.file_writers import PopulationFileWriter
 from pyemoji.model import Model, State, WorldRules
 from pyemoji.simulator import Simulator
 from pyemoji.visualization.images import ImageMaker
-from pyemoji.visualization.pygame import imgen, run
 
 downstate = State(id=0, name="down", icon="⚫️", actions=[])
 upstate = State(id=1, icon="🔴", name="up", actions=[])
@@ -38,7 +37,8 @@ model = Model(
     world=WorldRules(
         neighborhood="moore",
         proportions=[{"stateID": 0, "parts": 1}, {"stateID": 1, "parts": 1}],
-        size={"height": 23, "width": 29},
+        height=23,
+        width=29,
     ),
 )
 

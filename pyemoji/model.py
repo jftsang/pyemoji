@@ -6,9 +6,21 @@ from pyemoji.actions import AnyAction
 
 
 class WorldRules(pydantic.BaseModel):
+    @pydantic.model_validator(mode="before")
+    @classmethod
+    def unpack_size(cls, data: Any) -> Any:
+        if not isinstance(data, dict):
+            raise TypeError
+        if "size" in data and "height" not in data and "width" not in data:
+            s = data.pop("size")
+            return {**data, **s}
+        else:
+            return data
+
     neighborhood: Literal["moore", "neumann"]
     proportions: list[dict[str, int]]  # TODO should be stateID and parts
-    size: dict[str, int]  # TODO should be height and width
+    height: int
+    width: int
     update: Literal["simultaneous"] = "simultaneous"
 
 

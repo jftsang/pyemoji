@@ -17,7 +17,8 @@ rules = Model(
     world=WorldRules(
         neighborhood="moore",
         proportions=[{"stateID": 0, "parts": 13 * 17 - 3}, {"stateID": 1, "parts": 3}],
-        size={"width": 13, "height": 17},
+        width=13,
+        height=17,
     ),
 )
 
