@@ -2,7 +2,7 @@ import operator
 import random
 from abc import ABC, abstractmethod
 from functools import reduce
-from typing import TYPE_CHECKING, Annotated, Literal
+from typing import TYPE_CHECKING, Annotated, Iterable, Literal
 
 import pydantic
 
@@ -72,7 +72,7 @@ class MoveToAction(pydantic.BaseModel, Action):
         return data
 
     def step(self, agent: "Agent"):
-        candidates: list["Agent"]
+        candidates: Iterable["Agent"]
         if self.dest == "anywhere":
             candidates = agent.simulator.get_all_agents()
         elif self.dest == "neighbors":
@@ -80,9 +80,12 @@ class MoveToAction(pydantic.BaseModel, Action):
         else:
             raise ValueError
 
-        eligibles = [a for a in candidates if a.state.id == self.spotStateID]
+        eligibles: list[Agent] = [
+            a for a in candidates if a.state.id == self.spotStateID
+        ]
         if not eligibles:
-            return
+            return  # can't move anywhere, give up
+
         chosen: "Agent" = random.choice(eligibles)
         chosen.force_state(agent.state)
         agent.next_state = agent.model.states[self.leaveStateID]

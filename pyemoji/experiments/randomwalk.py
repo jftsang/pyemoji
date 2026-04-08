@@ -2,9 +2,9 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from tqdm.auto import tqdm
 
-from actions import MoveToAction
-from model import Model, State, WorldRules
-from simulator import Simulator
+from pyemoji.actions import MoveToAction
+from pyemoji.model import Model, State, WorldRules
+from pyemoji.simulator import Simulator
 
 downstate = State(id=0, name="down", icon="⚫️", actions=[])
 upstate = State(id=1, icon="🔴", name="up", actions=[])

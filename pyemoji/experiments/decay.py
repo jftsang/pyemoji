@@ -44,8 +44,10 @@ rules = Model(
     world=WorldRules(
         neighborhood="neumann",
         proportions=[{"stateID": 0, "parts": 0}, {"stateID": 1, "parts": 100}],
-        # size={"width": 31, "height": 29},
-        size={"width": 101, "height": 103},
+        height=103,
+        width=101,
+        # height=29,
+        # width=31,
     ),
 )
 

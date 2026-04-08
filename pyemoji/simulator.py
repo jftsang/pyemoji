@@ -1,7 +1,7 @@
 import random
 from collections import Counter
 from itertools import product
-from typing import Iterable, Self, Any
+from typing import Any, Iterable, Self
 
 import numpy as np
 from streamerate import stream
@@ -18,9 +18,13 @@ class Simulator:
         # Agents don't actually "move around". When an agent "moves" to
         # another cell, what actually happens is that the agent at the
         # destination cell is updated.
-        self.grid = np.empty((self.height, self.width), dtype=object)
+        self.grid: np.ndarray[tuple[int, int], np.dtype[Any]] = np.empty(
+            (self.height, self.width), dtype=object
+        )
         # flat list of agents that will be shuffled
-        self._agents = np.empty(self.height * self.width, dtype=object)
+        self._agents: np.ndarray[tuple[int], np.dtype[Any]] = np.empty(
+            self.height * self.width, dtype=object
+        )
 
         # Initialise with arbitrary agents. Their states will be set
         # later.
@@ -88,7 +92,7 @@ class Simulator:
     def get_all_agents(self) -> np.ndarray:
         return self._agents
 
-    def get_neighbors(self, agent: Agent):
+    def get_neighbors(self, agent: Agent) -> list[Agent]:
         x = agent.x
         y = agent.y
         hood = self.model.world.neighborhood
