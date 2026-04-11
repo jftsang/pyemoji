@@ -27,9 +27,9 @@ upstate = State(id=1, icon="🔴", name="up", actions=[])
 
 tmax = 300
 
-base_rate = 0.01
-additional_rate = 0.01
-neighbors_needed_for_assistance = 4
+base_rate = 0.05
+additional_rate = 0.05
+neighbors_needed_for_assistance = 5
 
 decay = GoToStateAction(stateID=0)
 base_decay = IfRandomAction(probability=base_rate, actions=[decay])
@@ -45,8 +45,11 @@ upstate.actions.append(assisted_decay)
 rules = Model(
     states=[downstate, upstate],
     world=WorldRules(
-        neighborhood="neumann",
+        neighborhood="moore",
+        # neighborhood="neumann",
         proportions=[{"stateID": 0, "parts": 0}, {"stateID": 1, "parts": 100}],
+        # height=101,
+        # width=103,
         # height=59,
         # width=61,
         height=29,
@@ -60,7 +63,12 @@ class DecaySim(Simulator):
         super().__init__(*a, **k)
         self.pop_history = []
 
-    def post_step(self):
+    def pre_step(self):
+        t = self.time
+        p = self.populations()
+        self.pop_history.append({"t": t, **p})
+
+    def post_stop(self):
         t = self.time
         p = self.populations()
         self.pop_history.append({"t": t, **p})
@@ -77,7 +85,7 @@ def main():
     ax = plt.gca()
     simulator: DecaySim
     n_experiments = 20
-    t = np.arange(0, tmax)
+    t = np.arange(0, tmax + 1)
     results = np.empty((n_experiments, len(t)))
     for sid in range(n_experiments):
         simulator = DecaySim(rules)
@@ -114,7 +122,19 @@ def main():
     r0 = base_rate
 
     def mft(_, p):
-        return -r0 * p * (1 + delta * (1 - p) ** 4)
+        p_bonus = (
+            (1 - p) ** 8 
+            + 8 * (1 - p) ** 7 * p ** 1
+            + 28 * (1 - p) ** 6 * p ** 2
+            + 56 * (1 - p) ** 5 * p ** 3
+        )
+        # p_bonus = (
+        #     (1 - p) ** 4
+        #     + 4 * (1 - p) ** 3 * p
+        #     + 6 * (1 - p) ** 2 * p ** 2
+        #     # + 4 * (1 - p) ** 1 * p ** 3
+        # )
+        return -r0 * p * (1 + delta * p_bonus)
 
     sol = solve_ivp(mft, [0, tmax], [1], t_eval=np.arange(0, tmax))
 
