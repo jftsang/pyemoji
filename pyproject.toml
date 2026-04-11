@@ -29,7 +29,7 @@ classifiers = [
 [project.optional-dependencies]
 gui = [
     "pillow",
-    "pygame"
+    "pygame-ce"
 ]
 dev = [
     "black>=26.3.1",
@@ -37,6 +37,7 @@ dev = [
     "flake8",
     "pandas-stubs==3.0.0.260204",
     "pytest",
+    "pytest-github-actions-annotate-failures",
     "ruff>=0.15.9",
     "ty>=0.0.24",
 ]
