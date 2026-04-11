@@ -89,8 +89,8 @@ def main():
         pop = df["up"].to_numpy()
         results[sid, :] = pop
 
-        cmap = plt.get_cmap("Oranges")
-        ax.plot(t, pop, "-", c=cmap(sid / n_experiments), lw=0.8)
+        # cmap = plt.get_cmap("Oranges")
+        # ax.plot(t, pop, "-", c=cmap(sid / n_experiments), lw=0.8)
 
     mu = np.mean(results, axis=0)
     std = np.std(results, axis=0)
