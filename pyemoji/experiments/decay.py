@@ -1,3 +1,5 @@
+import multiprocessing
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -25,11 +27,11 @@ upstate = State(id=1, icon="🔴", name="up", actions=[])
 # Additional probability of decay if you have a neighbour who has
 # already decayed.
 
-tmax = 300
+tmax = 70
 
 base_rate = 0.05
 additional_rate = 0.05
-neighbors_needed_for_assistance = 5
+neighbors_needed_for_assistance = 6
 
 decay = GoToStateAction(stateID=0)
 base_decay = IfRandomAction(probability=base_rate, actions=[decay])
@@ -48,12 +50,12 @@ rules = Model(
         neighborhood="moore",
         # neighborhood="neumann",
         proportions=[{"stateID": 0, "parts": 0}, {"stateID": 1, "parts": 100}],
-        # height=101,
-        # width=103,
+        height=101,
+        width=103,
         # height=59,
         # width=61,
-        height=29,
-        width=31,
+        # height=29,
+        # width=31,
     ),
 )
 
@@ -81,24 +83,26 @@ class DecaySim(Simulator):
         pass
 
 
+def runsim(sid):
+    simulator = DecaySim(rules)
+
+    for _ in tqdm(simulator.run(), total=tmax):
+        pass
+    df = pd.DataFrame.from_records(simulator.pop_history)
+    # t = df["t"].to_numpy()
+    pop = df["up"].to_numpy()
+    return pop
+
+
 def main():
     ax = plt.gca()
-    simulator: DecaySim
     n_experiments = 20
     t = np.arange(0, tmax + 1)
-    results = np.empty((n_experiments, len(t)))
-    for sid in range(n_experiments):
-        simulator = DecaySim(rules)
 
-        for _ in tqdm(simulator.run(), total=tmax):
-            pass
-        df = pd.DataFrame.from_records(simulator.pop_history)
-        # t = df["t"].to_numpy()
-        pop = df["up"].to_numpy()
-        results[sid, :] = pop
+    with multiprocessing.Pool(processes=8) as pool:
+        results = pool.map(runsim, range(n_experiments))
 
-        # cmap = plt.get_cmap("Oranges")
-        # ax.plot(t, pop, "-", c=cmap(sid / n_experiments), lw=0.8)
+    results = np.array(results)
 
     mu = np.mean(results, axis=0)
     std = np.std(results, axis=0)
@@ -123,10 +127,9 @@ def main():
 
     def mft(_, p):
         p_bonus = (
-            (1 - p) ** 8 
-            + 8 * (1 - p) ** 7 * p ** 1
-            + 28 * (1 - p) ** 6 * p ** 2
-            + 56 * (1 - p) ** 5 * p ** 3
+            (1 - p) ** 8 + 8 * (1 - p) ** 7 * p**1 + 28 * (1 - p) ** 6 * p**2
+            # + 56 * (1 - p) ** 5 * p**3
+            # + 70 * (1 - p) ** 4 * p**4
         )
         # p_bonus = (
         #     (1 - p) ** 4
@@ -140,7 +143,7 @@ def main():
 
     ax.plot(sol.t, gs * sol.y[0], "k-.", label="mean field theory")
 
-    ax.set_ylim(50, gs * 1.05)
+    ax.set_ylim(20, gs * 1.05)
     ax.set_yscale("log")
     ax.legend()
     plt.show()
