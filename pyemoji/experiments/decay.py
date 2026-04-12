@@ -27,10 +27,10 @@ upstate = State(id=1, icon="🔴", name="up", actions=[])
 # Additional probability of decay if you have a neighbour who has
 # already decayed.
 
-tmax = 70
+tmax = 300
 
-base_rate = 0.05
-additional_rate = 0.05
+base_rate = 0.01
+additional_rate = 0.01
 neighbors_needed_for_assistance = 6
 
 decay = GoToStateAction(stateID=0)
@@ -112,14 +112,19 @@ def main():
     ax.plot(t, mu - std, "r--")
 
     gs = rules.world.height * rules.world.width
+
+    geo_decay = gs * (1 - base_rate) ** t
+    ax.plot(t, geo_decay, "k-", label="geometric decay")
+
     exp_decay = gs * np.exp(-base_rate * t)
-    ax.plot(t, exp_decay, "k-", label="exponential decay (base rate)")
-    ax.plot(
-        t,
-        gs * np.exp(-(base_rate + additional_rate) * t),
-        "k:",
-        label="exponential decay (always assisted)",
-    )
+    ax.plot(t, exp_decay, "k--", label="exponential decay (base rate)")
+
+    # ax.plot(
+    #     t,
+    #     gs * np.exp(-(base_rate + additional_rate) * t),
+    #     "k:",
+    #     label="exponential decay (always assisted)",
+    # )
 
     # Mean field theory predicts...
     delta = additional_rate / base_rate
@@ -143,7 +148,7 @@ def main():
 
     ax.plot(sol.t, gs * sol.y[0], "k-.", label="mean field theory")
 
-    ax.set_ylim(20, gs * 1.05)
+    # ax.set_ylim(20, gs * 1.05)
     ax.set_yscale("log")
     ax.legend()
     plt.show()
