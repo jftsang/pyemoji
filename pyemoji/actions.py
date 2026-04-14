@@ -26,11 +26,14 @@ class IfNeighborAction(pydantic.BaseModel, Action):
         neighbors = agent.simulator.get_neighbors(agent)
         desired_state = agent.model.states[self.stateID]
         count = len([x for x in neighbors if x.state == desired_state])
-        cond: bool
-        if self.sign == ">=":
-            cond = count >= self.num
-        else:
-            raise NotImplementedError
+        op = {
+            ">": operator.gt,
+            ">=": operator.ge,
+            "<": operator.lt,
+            "<=": operator.le,
+            "=": operator.eq,
+        }[self.sign]
+        cond: bool = op(count, self.num)
         if cond:
             agent.perform_actions(self.actions)
 
