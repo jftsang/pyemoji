@@ -70,12 +70,10 @@ def imgen(
         yield surface
 
 
-def render(simulator: Simulator) -> None:
-    states: Iterable[Simulator] = simulator.run()
+def render(states: Iterable[Simulator], cell_size: int = 30) -> None:
     [next_state] = tee(states, 1)
     s0: Simulator = next(next_state)
     rows, cols = s0.grid.shape
-    cell_size = 30
     display_size: tuple[int, int] = (cols * cell_size, rows * cell_size)
     g: Iterable[pygame.Surface] = imgen(states, display_size, cell_size=cell_size)
     run(g, display_size=display_size)
@@ -84,4 +82,4 @@ def render(simulator: Simulator) -> None:
 if __name__ == "__main__":
     from pyemoji.experiments.simpledecay import simulator
 
-    render(simulator)
+    render(simulator.run())
