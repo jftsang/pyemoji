@@ -1,3 +1,4 @@
 [submodule "ncase/sim"]
 	path = ncase/sim
 	url = https://github.com/ncase/sim.git
+	branch = ed10f69dd24a4ff5cb8d67efa8d121a5fbde8198
