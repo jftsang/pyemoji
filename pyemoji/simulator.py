@@ -1,7 +1,7 @@
 import random
 from collections import Counter
 from itertools import product
-from typing import Any, Iterable, Self
+from typing import Any, Iterable, Self, cast, Sequence
 
 import numpy as np
 from streamerate import stream
@@ -89,7 +89,8 @@ class Simulator:
             for i in range(self.height)
         )
 
-    def get_all_agents(self) -> np.ndarray:
+    def get_all_agents(self) -> np.ndarray[tuple[int], np.dtype[Any]]:
+        """1D array of agents"""
         return self._agents
 
     def get_neighbors(self, agent: Agent) -> list[Agent]:
@@ -140,12 +141,11 @@ class Simulator:
     def setup_ics(self):
         self.time = 0
         # set up initial conditions
-        probs = [0] * len(self.model.states)
-        for sp in self.model.world.proportions:
-            sid, p = sp["stateID"], sp["parts"]
-            probs[sid] = p
+        probs: list[int | float] = [0] * len(self.model.states)
+        for sid, proportion in self.model.world.proportions.items():
+            probs[sid] = proportion
         for i, j in product(range(self.height), range(self.width)):
-            agent = self.grid[i, j]
+            agent: Agent = self.grid[i, j]
             state: State = random.choices(self.model.states, weights=probs)[0]
             agent.force_state(state)
 
@@ -153,6 +153,7 @@ class Simulator:
         self.time += 1
         agents = self.get_all_agents()
         np.random.shuffle(agents)
+        agents = cast(Sequence[Agent], agents)
         for agent in agents:
             agent.mark_as_not_updated()
         for agent in agents:

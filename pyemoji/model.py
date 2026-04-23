@@ -1,4 +1,5 @@
-from typing import Any, Literal
+from streamerate import stream
+from typing import Any, Literal, Mapping
 
 import pydantic
 
@@ -13,12 +14,20 @@ class WorldRules(pydantic.BaseModel):
             raise TypeError
         if "size" in data and "height" not in data and "width" not in data:
             s = data.pop("size")
-            return {**data, **s}
-        else:
-            return data
+            data = {**data, **s}
+
+        if "proportions" in data:
+            plist = data.get("proportions")
+            if isinstance(plist, list):
+                # [{"stateID": 0, "parts": 0}, {"stateID": 1, "parts": 100}]
+                data["proportions"] = (
+                    stream(plist).map(lambda d: (d["stateID"], d["parts"])).to_dict()
+                )
+
+        return data
 
     neighborhood: Literal["moore", "neumann"]
-    proportions: list[dict[str, int]]  # TODO should be stateID and parts
+    proportions: Mapping[int, int | float]  # map of species IDs to proportions
     height: int
     width: int
     update: Literal["simultaneous"] = "simultaneous"
