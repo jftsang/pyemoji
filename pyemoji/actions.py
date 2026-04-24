@@ -2,12 +2,13 @@ import operator
 import random
 from abc import ABC, abstractmethod
 from functools import reduce
-from typing import TYPE_CHECKING, Annotated, Iterable, Literal
+from typing import TYPE_CHECKING, Annotated, Iterable, Literal, Sequence
 
 import pydantic
 
 if TYPE_CHECKING:
     from pyemoji.agent import Agent
+    from pyemoji.model import State
 
 
 class Action(ABC):
@@ -60,38 +61,44 @@ class GoToStateAction(pydantic.BaseModel, Action):
 class MoveToAction(pydantic.BaseModel, Action):
     type: Literal["move_to"] = "move_to"
     dest: Literal["anywhere", "neighbors"]
-    spotStateID: int
-    leaveStateID: int
+    destStateID: int  # state that we can move into
+    leaveStateID: int  # state that we leave behind
+    # state that we change into (None means don't change)
+    resultStateID: int | None = None
 
     @pydantic.model_validator(mode="before")
     @classmethod
     def fix_types(cls, data: dict) -> dict:
-        if isinstance(ssid := data["spotStateID"], str):
-            data["spotStateID"] = int(ssid)
+        if "destStateID" not in data and "spotStateID" in data:
+            data["destStateID"] = data.pop("spotStateID")
+        if isinstance(ssid := data["destStateID"], str):
+            data["destStateID"] = int(ssid)
         if "dest" not in data:
             s = int(data.pop("space"))  # raises KeyError
             data["dest"] = {0: "neighbors", 1: "anywhere"}[s]
 
         return data
 
-    def step(self, agent: "Agent"):
-        candidates: Iterable["Agent"]
+    def step(self, agent: Agent):
         if self.dest == "anywhere":
-            candidates = agent.simulator.get_all_agents()
+            candidates: Iterable[Agent] = agent.simulator.get_all_agents()
         elif self.dest == "neighbors":
-            candidates = agent.simulator.get_neighbors(agent)
+            candidates: Iterable[Agent] = agent.simulator.get_neighbors(agent)
         else:
             raise ValueError
 
-        eligibles: list[Agent] = [
-            a for a in candidates if a.state.id == self.spotStateID
+        eligibles: Sequence[Agent] = [
+            a for a in candidates if a.state.id == self.destStateID
         ]
         if not eligibles:
             return  # can't move anywhere, give up
 
         chosen: "Agent" = random.choice(eligibles)
-        chosen.force_state(agent.state)
-        agent.next_state = agent.model.states[self.leaveStateID]
+        if self.resultStateID is None:
+            chosen.force_state(agent.state)
+        else:
+            agent.model.states[self.resultStateID]
+        agent.next_state: "State" = agent.model.states[self.leaveStateID]
 
 
 action_classes = [

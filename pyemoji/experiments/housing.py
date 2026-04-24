@@ -1,3 +1,4 @@
+from pyemoji.actions import IfNeighborAction, GoToStateAction, MoveToAction
 from tqdm.auto import tqdm
 
 from pyemoji.model import Model, State, WorldRules
@@ -18,17 +19,54 @@ rules = Model(
         proportions={
             empty.id: 60,
             abandoned.id: 10,
-            occupied.id: 10,
+            occupied.id: 0,
             person.id: 10,
-            mobile_person.id: 10,
+            mobile_person.id: 0,
         },
-        height=29,
-        width=31,
+        height=37,
+        width=41,
     ),
 )
 
 
-class SimpleDecaySim(Simulator):
+move_in = IfNeighborAction(
+    sign=">",
+    num=0,
+    stateID=abandoned.id,
+    actions=[
+        GoToStateAction(stateID=occupied.id),
+        MoveToAction(
+            dest="neighbors",
+            destStateID=abandoned.id,
+            resultStateID=occupied.id,
+            leaveStateID=empty.id,
+        ),
+    ],
+)
+
+slow_people_move = IfNeighborAction(
+    sign="=",
+    num=0,
+    stateID=abandoned.id,
+    actions=[
+        MoveToAction(dest="neighbors", destStateID=empty.id, leaveStateID=empty.id)
+    ],
+)
+
+fast_people_move = IfNeighborAction(
+    sign="=",
+    num=0,
+    stateID=abandoned.id,
+    actions=[
+        MoveToAction(dest="anywhere", destStateID=empty.id, leaveStateID=empty.id)
+    ],
+)
+
+person.actions = [move_in, slow_people_move]
+mobile_person.actions = [move_in, fast_people_move]
+
+
+class HousingSim(Simulator):
     def __init__(self, *a, **k):
         super().__init__(*a, **k)
         self.pop_history = []
@@ -49,8 +87,8 @@ class SimpleDecaySim(Simulator):
         super().finalize()
 
 
-simulator = SimpleDecaySim(rules)
+simulator = HousingSim(rules)
 
 if __name__ == "__main__":
     states = tqdm(simulator.run(), total=simulator.tmax)
-    render(states, cell_size=24)
+    render(states, cell_size=20)
