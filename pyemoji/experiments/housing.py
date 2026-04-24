@@ -3,7 +3,7 @@ from tqdm.auto import tqdm
 
 from pyemoji.model import Model, State, WorldRules
 from pyemoji.simulator import Simulator
-from pyemoji.visualization.pygame import render
+from pyemoji.visualization.pygame import PygameVisualizer
 
 empty = State(id=0, name="down", icon="", actions=[])
 abandoned = State(id=1, name="empty building", icon="🏚️", actions=[])
@@ -71,11 +71,13 @@ class HousingSim(Simulator):
         super().__init__(*a, **k)
         self.pop_history = []
         self.tmax = 2000
+        self.pbar = tqdm(total=self.tmax)
 
     def post_step(self):
         t = self.time
         p = self.populations()
         self.pop_history.append({"t": t, **p})
+        self.pbar.update(1)
 
     def should_stop(self) -> bool:
         return self.time > self.tmax
@@ -90,5 +92,6 @@ class HousingSim(Simulator):
 simulator = HousingSim(rules)
 
 if __name__ == "__main__":
-    states = tqdm(simulator.run(), total=simulator.tmax)
-    render(states, cell_size=20)
+    states = simulator.run()
+    vi = PygameVisualizer.render(states, cell_size=20)
+    vi.run()
