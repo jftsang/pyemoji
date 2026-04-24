@@ -9,14 +9,17 @@ from pyemoji.simulator import Simulator
 downstate = State(id=0, name="down", icon="⚫️", actions=[])
 upstate = State(id=1, icon="🔴", name="up", actions=[])
 
-walk = MoveToAction(dest="neighbors", spotStateID=0, leaveStateID=0)
+walk = MoveToAction(dest="neighbors", destStateID=0, leaveStateID=0)
 upstate.actions.append(walk)
 
 rules = Model(
     states=[downstate, upstate],
     world=WorldRules(
         neighborhood="moore",
-        proportions=[{"stateID": 0, "parts": 13 * 17 - 3}, {"stateID": 1, "parts": 3}],
+        proportions={
+            downstate.id: 13 * 17 - 3,
+            upstate.id: 3,
+        },
         width=13,
         height=17,
     ),

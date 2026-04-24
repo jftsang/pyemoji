@@ -40,7 +40,7 @@ model = Model(
     states=[downstate, upstate],
     world=WorldRules(
         neighborhood="moore",
-        proportions=[{"stateID": 0, "parts": 1}, {"stateID": 1, "parts": 1}],
+        proportions={downstate.id: 1, upstate.id: 1},
         height=23,
         width=29,
     ),
