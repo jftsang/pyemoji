@@ -9,7 +9,7 @@ from pyemoji.simulator import Simulator
 downstate = State(id=0, name="down", icon="⚫️", actions=[])
 upstate = State(id=1, icon="🔴", name="up", actions=[])
 
-walk = MoveToAction(dest="neighbors", destStateID=0, leaveStateID=0)
+walk = MoveToAction(dest="neighbors", destState=downstate, leaveState=downstate)
 upstate.actions.append(walk)
 
 rules = Model(

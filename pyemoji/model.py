@@ -57,9 +57,6 @@ class Model(pydantic.BaseModel):
     def statemap(self) -> dict[int, State]:
         return {s.id: s for s in self.states}
 
-    def sid2char(self, sid: int) -> str:
-        return self.statemap[sid].icon
-
     @property
     def default_state(self) -> State:
         return self.states[0]

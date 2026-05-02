@@ -33,12 +33,12 @@ base_rate = 0.01
 additional_rate = 0.01
 neighbors_needed_for_assistance = 6
 
-decay = GoToStateAction(stateID=0)
+decay = GoToStateAction(destState=downstate)
 base_decay = IfRandomAction(probability=base_rate, actions=[decay])
 assisted_decay = IfNeighborAction(
     sign=">=",
     num=neighbors_needed_for_assistance,
-    stateID=0,
+    neighborState=downstate,
     actions=[IfRandomAction(probability=additional_rate, actions=[decay])],
 )
 upstate.actions.append(base_decay)

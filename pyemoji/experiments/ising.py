@@ -11,8 +11,8 @@ from pyemoji.visualization.images import ImageMaker
 downstate = State(id=0, name="down", icon="⚫️", actions=[])
 upstate = State(id=1, icon="🔴", name="up", actions=[])
 
-flipdown = GoToStateAction(stateID=0)
-flipup = GoToStateAction(stateID=1)
+flipdown = GoToStateAction(destState=downstate)
+flipup = GoToStateAction(destState=upstate)
 
 
 def maybe(p, a):
@@ -24,14 +24,20 @@ p_random_flip = 0.0001
 
 downstate.actions = [
     IfNeighborAction(
-        sign=">=", num=5, stateID=1, actions=[maybe(p_assisted_flip, flipup)]
+        sign=">=",
+        num=5,
+        neighborState=upstate,
+        actions=[maybe(p_assisted_flip, flipup)],
     ),
     maybe(p_random_flip, flipup),
 ]
 
 upstate.actions = [
     IfNeighborAction(
-        sign=">=", num=5, stateID=0, actions=[maybe(p_assisted_flip, flipdown)]
+        sign=">=",
+        num=5,
+        neighborState=downstate,
+        actions=[maybe(p_assisted_flip, flipdown)],
     ),
     maybe(p_random_flip, flipdown),
 ]

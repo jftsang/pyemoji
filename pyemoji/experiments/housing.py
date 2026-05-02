@@ -32,14 +32,14 @@ rules = Model(
 move_in = IfNeighborAction(
     sign=">",
     num=0,
-    stateID=abandoned.id,
+    neighborState=abandoned,
     actions=[
-        GoToStateAction(stateID=occupied.id),
+        GoToStateAction(destState=occupied),
         MoveToAction(
             dest="neighbors",
-            destStateID=abandoned.id,
-            resultStateID=occupied.id,
-            leaveStateID=empty.id,
+            destState=abandoned,
+            resultState=occupied,
+            leaveState=empty,
         ),
     ],
 )
@@ -47,19 +47,15 @@ move_in = IfNeighborAction(
 slow_people_move = IfNeighborAction(
     sign="=",
     num=0,
-    stateID=abandoned.id,
-    actions=[
-        MoveToAction(dest="neighbors", destStateID=empty.id, leaveStateID=empty.id)
-    ],
+    neighborState=abandoned,
+    actions=[MoveToAction(dest="neighbors", destState=empty, leaveState=empty)],
 )
 
 fast_people_move = IfNeighborAction(
     sign="=",
     num=0,
-    stateID=abandoned.id,
-    actions=[
-        MoveToAction(dest="anywhere", destStateID=empty.id, leaveStateID=empty.id)
-    ],
+    neighborState=abandoned,
+    actions=[MoveToAction(dest="anywhere", destState=empty, leaveState=empty)],
 )
 
 person.actions = [move_in, slow_people_move]

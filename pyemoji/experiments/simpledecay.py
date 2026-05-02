@@ -10,7 +10,7 @@ from pyemoji.simulator import Simulator
 downstate = State(id=0, name="down", icon="⚫️", actions=[])
 upstate = State(id=1, name="up", icon="🔴", actions=[])
 
-decay = GoToStateAction(stateID=0)
+decay = GoToStateAction(destState=downstate)
 mightdecay = IfRandomAction(probability=0.01, actions=[decay])
 
 upstate.actions.append(mightdecay)
