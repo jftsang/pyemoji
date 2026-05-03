@@ -4,7 +4,6 @@ from tqdm.auto import tqdm
 
 from pyemoji.actions import (
     IfNeighborAction,
-    GoToStateAction,
     MoveToAction,
     IfRandomAction,
 )
@@ -13,7 +12,7 @@ from pyemoji.simulator import Simulator
 from pyemoji.visualization.pygame import PygameVisualizer
 
 empty = State(id=0, name="empty", icon="", actions=[])
-abandoned = State(id=1, name="empty building", icon="🏚️", actions=[])
+abandoned = State(id=1, name="unused building", icon="🏚️", actions=[])
 occupied = State(id=2, name="occupied building", icon="🏠", actions=[])
 person = State(id=3, name="person", icon="🚶", actions=[])
 mobile_person = State(id=4, name="mobile person", icon="🚴", actions=[])
@@ -41,7 +40,6 @@ move_in = IfNeighborAction(
     num=0,
     neighborState=abandoned,
     actions=[
-        GoToStateAction(destState=occupied),
         MoveToAction(
             dest="neighbors",
             destState=abandoned,
@@ -78,7 +76,7 @@ class HousingSim(Simulator):
     def __init__(self, *a, **k):
         super().__init__(*a, **k)
         self.pop_history = []
-        self.tmax = 20
+        self.tmax = 200
         self.pbar = tqdm(total=self.tmax)
 
     def pre_step(self):
