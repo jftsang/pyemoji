@@ -141,7 +141,7 @@ class Simulator:
     def setup_ics(self):
         self.time = 0
         # set up initial conditions
-        probs: list[int | float] = [0] * len(self.model.states)
+        probs: list[int | float] = [0] * len(self.model.states)  # ty:ignore[invalid-assignment]
         for sid, proportion in self.model.world.proportions.items():
             probs[sid] = proportion
         for i, j in product(range(self.height), range(self.width)):

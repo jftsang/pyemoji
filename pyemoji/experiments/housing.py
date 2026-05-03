@@ -1,11 +1,18 @@
-from pyemoji.actions import IfNeighborAction, GoToStateAction, MoveToAction
+import matplotlib.pyplot as plt
+import pandas as pd
 from tqdm.auto import tqdm
 
+from pyemoji.actions import (
+    IfNeighborAction,
+    GoToStateAction,
+    MoveToAction,
+    IfRandomAction,
+)
 from pyemoji.model import Model, State, WorldRules
 from pyemoji.simulator import Simulator
 from pyemoji.visualization.pygame import PygameVisualizer
 
-empty = State(id=0, name="down", icon="", actions=[])
+empty = State(id=0, name="empty", icon="", actions=[])
 abandoned = State(id=1, name="empty building", icon="🏚️", actions=[])
 occupied = State(id=2, name="occupied building", icon="🏠", actions=[])
 person = State(id=3, name="person", icon="🚶", actions=[])
@@ -48,7 +55,12 @@ slow_people_move = IfNeighborAction(
     sign="=",
     num=0,
     neighborState=abandoned,
-    actions=[MoveToAction(dest="neighbors", destState=empty, leaveState=empty)],
+    actions=[
+        IfRandomAction(
+            probability=0.2,
+            actions=[MoveToAction(dest="neighbors", destState=empty, leaveState=empty)],
+        )
+    ],
 )
 
 fast_people_move = IfNeighborAction(
@@ -66,19 +78,35 @@ class HousingSim(Simulator):
     def __init__(self, *a, **k):
         super().__init__(*a, **k)
         self.pop_history = []
-        self.tmax = 2000
+        self.tmax = 20
         self.pbar = tqdm(total=self.tmax)
 
-    def post_step(self):
+    def pre_step(self):
         t = self.time
         p = self.populations()
         self.pop_history.append({"t": t, **p})
+
+    def post_step(self):
         self.pbar.update(1)
+
+    def post_stop(self):
+        t = self.time
+        p = self.populations()
+        self.pop_history.append({"t": t, **p})
 
     def should_stop(self) -> bool:
         return self.time > self.tmax
 
-    def produce_plots(self): ...
+    def produce_plots(self):
+        df = pd.DataFrame.from_records(self.pop_history)
+        fig, ax = plt.subplots(1, 1)
+        for s in self.model.states[1:]:
+            ax.plot(df["t"], df[s.name], label=s.name)
+
+        ax.legend()
+        self.fig = fig
+
+        # breakpoint()
 
     def finalize(self):
         self.produce_plots()
@@ -91,3 +119,7 @@ if __name__ == "__main__":
     states = simulator.run()
     vi = PygameVisualizer.render(states, cell_size=20)
     vi.run()
+
+    simulator.fig.show()
+
+    plt.show()

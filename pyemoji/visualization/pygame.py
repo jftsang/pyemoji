@@ -77,7 +77,8 @@ class PygameVisualizer:
                 if self.fps_cap:
                     clock.tick(self.fps_cap)
         finally:
-            pygame.quit()
+            # pygame.quit()
+            pass
 
     def imgen(self) -> Iterable[pygame.Surface]:
         agent2icon: Callable[[np.ndarray], np.ndarray] = np.vectorize(
